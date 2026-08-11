@@ -314,15 +314,25 @@ input::placeholder { color: #B8B3AB; }
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 8px; border-radius: var(--radius-pill);
   font-size: 11px; font-weight: 600;
-  cursor: pointer; user-select: none;
-  border: 1.5px solid transparent;
-  transition: all .15s;
 }
-.tag:hover { filter: brightness(.95); border-color: currentColor; }
 .tag-david { background: var(--david-bg); color: var(--david); }
 .tag-yesy  { background: var(--yesy-bg);  color: var(--yesy); }
 .tag-split { background: var(--sage-light); color: var(--sage-dark); }
-.tag-pencil { font-size: 10px; opacity: .5; }
+
+/* ---- PERSON MINI BUTTONS (on cards) ---- */
+.person-mini { display: flex; gap: 5px; margin-top: 8px; }
+.pmini {
+  flex: 1; padding: 5px 0;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  font-family: inherit; font-size: 11px; font-weight: 500;
+  color: var(--muted); cursor: pointer;
+  text-align: center; transition: all .15s;
+}
+.pmini.sel-david { border-color: var(--david); background: var(--david-bg); color: var(--david); }
+.pmini.sel-yesy  { border-color: var(--yesy);  background: var(--yesy-bg);  color: var(--yesy); }
+.pmini.sel-split { border-color: var(--sage);  background: var(--sage-light); color: var(--sage-dark); }
 
 .list-total {
   margin-top: 12px; padding-top: 12px;
@@ -336,7 +346,8 @@ input::placeholder { color: #B8B3AB; }
   color: #D1C9BF; padding: 2px; transition: color .15s;
   opacity: 0;
 }
-.budget-row:hover .btn-remove-row { opacity: 1; }
+.budget-row:hover .btn-remove-row,
+.budget-row:hover .btn-edit { opacity: 1; }
 .btn-remove-row:hover { color: var(--red); }
 
 /* ---- TYPE RADIO ---- */
@@ -349,6 +360,42 @@ input::placeholder { color: #B8B3AB; }
 
 /* ---- PERSON LABEL ---- */
 .person-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
+/* ---- MODAL ---- */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); z-index: 200;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 24px; width: 100%; max-width: 480px;
+  box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-cancel {
+  flex: 1; padding: 10px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg); font-family: inherit; font-size: 14px;
+  color: var(--muted); cursor: pointer;
+}
+.btn-save {
+  flex: 2; padding: 10px;
+  background: var(--text); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.btn-edit {
+  background: none; border: none; cursor: pointer;
+  color: #D1C9BF; transition: color .15s; padding: 4px;
+}
+.btn-edit:hover { color: var(--sage); }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-grid .full { grid-column: 1 / -1; }
+.modal-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
 
 /* ---- ANIMATIONS ---- */
 .fade-in { animation: fi .2s ease; }
@@ -489,6 +536,52 @@ input::placeholder { color: #B8B3AB; }
 
 </main>
 
+<!-- FURNITURE EDIT MODAL -->
+<div class="modal-overlay" id="f-modal" onclick="if(event.target===this)closeModal('f-modal')">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Edit Item</div>
+    <input type="hidden" id="ef-id">
+    <div class="modal-grid">
+      <div class="full"><div class="modal-label">Item name</div><input id="ef-name" type="text" placeholder="Item name"></div>
+      <div><div class="modal-label">Store / Brand</div><input id="ef-store" type="text" placeholder="e.g. IKEA"></div>
+      <div><div class="modal-label">Price ($)</div><input id="ef-price" type="number" placeholder="0" min="0" step="0.01"></div>
+      <div><div class="modal-label">Qty</div><input id="ef-qty" type="number" placeholder="1" min="1"></div>
+      <div class="full"><div class="modal-label">Product URL</div><input id="ef-url" type="text" placeholder="https://..."></div>
+      <div class="full"><div class="modal-label">Thumbnail image URL</div><input id="ef-image" type="text" placeholder="https://..."></div>
+      <div class="full"><div class="modal-label">Note</div><input id="ef-note" type="text" placeholder="Optional note"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('f-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveEditFurniture()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUDGET EDIT MODAL -->
+<div class="modal-overlay" id="b-modal" onclick="if(event.target===this)closeModal('b-modal')">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Edit Entry</div>
+    <input type="hidden" id="eb-id">
+    <div class="modal-grid">
+      <div class="full"><div class="modal-label">Description</div><input id="eb-desc" type="text" placeholder="e.g. Rent, Salary"></div>
+      <div><div class="modal-label">Amount ($)</div><input id="eb-amount" type="number" placeholder="0" min="0" step="0.01"></div>
+      <div><div class="modal-label">Frequency</div>
+        <select id="eb-frequency">
+          <option value="weekly">Weekly</option>
+          <option value="fortnightly">Fortnightly</option>
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annual</option>
+        </select>
+      </div>
+      <div class="full"><div class="modal-label">Category</div><select id="eb-category"></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('b-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveEditBudget()">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <script>
@@ -593,12 +686,37 @@ function addFurniture() {
 }
 
 function removeFurniture(id) { S.furniture = S.furniture.filter(i=>i.id!==id); save(); renderFurniture(); }
+
+function openEditFurniture(id) {
+  const i = S.furniture.find(x=>x.id===id); if(!i) return;
+  $('ef-id').value    = id;
+  $('ef-name').value  = i.name;
+  $('ef-store').value = i.store  || '';
+  $('ef-price').value = i.price  || '';
+  $('ef-qty').value   = i.qty    || 1;
+  $('ef-url').value   = i.url    || '';
+  $('ef-image').value = i.imageUrl || '';
+  $('ef-note').value  = i.note   || '';
+  $('f-modal').classList.add('open');
+}
+function saveEditFurniture() {
+  const id = parseInt($('ef-id').value);
+  const i  = S.furniture.find(x=>x.id===id); if(!i) return;
+  i.name     = $('ef-name').value.trim()  || i.name;
+  i.store    = $('ef-store').value.trim();
+  i.price    = parseFloat($('ef-price').value) || 0;
+  i.qty      = parseInt($('ef-qty').value)     || 1;
+  i.url      = $('ef-url').value.trim();
+  i.imageUrl = $('ef-image').value.trim();
+  i.note     = $('ef-note').value.trim();
+  save(); renderFurniture(); closeModal('f-modal');
+}
+function closeModal(id) { $(id).classList.remove('open'); }
 function togglePurchased(id) { const i=S.furniture.find(x=>x.id===id); if(i) i.purchased=!i.purchased; save(); renderFurniture(); }
 function updQty(id, d) { const i=S.furniture.find(x=>x.id===id); if(i) i.qty=Math.max(1,i.qty+d); save(); renderFurniture(); }
-function cycleFurniturePerson(id) {
+function setFPerson(id, p) {
   const i=S.furniture.find(x=>x.id===id); if(!i) return;
-  i.person = !i.person||i.person==='david'?'yesy':i.person==='yesy'?'split':'david';
-  save(); renderFurniture();
+  i.person = p; save(); renderFurniture();
 }
 
 function setFFilter(f) {
@@ -648,15 +766,15 @@ function renderFurniture() {
         ${item.url ? `<a href="${item.url}" target="_blank" class="thumb-link"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : ''}
       </div>
       <div class="item-body">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-          <div>
-            <div class="item-name">${item.name}</div>
-            ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
-            ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
-          </div>
-          ${personTag(item.person||'split', item.id, 'cycleFurniturePerson')}
+        <div class="item-name">${item.name}</div>
+        ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
+        ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
+        ${item.price>0 ? `<div class="item-price" style="margin-top:6px">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
+        <div class="person-mini">
+          <button class="pmini ${(item.person||'split')==='david'?'sel-david':''}" onclick="setFPerson(${item.id},'david')">👨 David</button>
+          <button class="pmini ${(item.person||'split')==='yesy' ?'sel-yesy' :''}" onclick="setFPerson(${item.id},'yesy')">👩 Yesy</button>
+          <button class="pmini ${(item.person||'split')==='split'?'sel-split':''}" onclick="setFPerson(${item.id},'split')">🤝 Split</button>
         </div>
-        ${item.price>0 ? `<div class="item-price" style="margin-top:8px">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
         <div class="item-actions">
           <div class="qty-control">
             <button class="qty-btn" onclick="updQty(${item.id},-1)">−</button>
@@ -667,7 +785,10 @@ function renderFurniture() {
             <button class="btn-done ${item.purchased?'done':''}" onclick="togglePurchased(${item.id})">
               ${item.purchased?'✓ Done':'Mark done'}
             </button>
-            <button class="btn-delete" onclick="removeFurniture(${item.id})">
+            <button class="btn-edit" onclick="openEditFurniture(${item.id})" title="Edit">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </button>
+            <button class="btn-delete" onclick="removeFurniture(${item.id})" title="Delete">
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
@@ -704,10 +825,27 @@ function addBudget() {
   save(); renderBudget();
 }
 function removeBudget(id) { S.budget=S.budget.filter(i=>i.id!==id); save(); renderBudget(); }
-function cyclePerson(id) {
-  const i = S.budget.find(x=>x.id===id); if(!i) return;
-  i.person = i.person==='david'?'yesy':i.person==='yesy'?'split':'david';
-  save(); renderBudget();
+function setBPerson(id, p) {
+  const i=S.budget.find(x=>x.id===id); if(!i) return;
+  i.person=p; save(); renderBudget();
+}
+function openEditBudget(id) {
+  const i=S.budget.find(x=>x.id===id); if(!i) return;
+  $('eb-id').value     = id;
+  $('eb-desc').value   = i.description;
+  $('eb-amount').value = i.amount;
+  $('eb-category').innerHTML = (i.type==='income'?incomeCats:expenseCats).map(c=>`<option${c===i.category?' selected':''}>${c}</option>`).join('');
+  $('eb-frequency').value = i.frequency;
+  $('b-modal').classList.add('open');
+}
+function saveEditBudget() {
+  const id=parseInt($('eb-id').value);
+  const i=S.budget.find(x=>x.id===id); if(!i) return;
+  i.description = $('eb-desc').value.trim()    || i.description;
+  i.amount      = parseFloat($('eb-amount').value) || i.amount;
+  i.category    = $('eb-category').value;
+  i.frequency   = $('eb-frequency').value;
+  save(); renderBudget(); closeModal('b-modal');
 }
 
 function personShare(entry,p) {
@@ -765,7 +903,12 @@ function renderBudget() {
           <span class="budget-row-icon">${catEmoji[i.category]||'💰'}</span>
           <div style="min-width:0">
             <div class="budget-row-name">${i.description}</div>
-            <div class="budget-row-meta">${personTag(i.person, i.id)}<span>${i.category}</span></div>
+            <div class="budget-row-meta" style="gap:4px">
+              <button class="pmini ${i.person==='david'?'sel-david':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'david')">👨</button>
+              <button class="pmini ${i.person==='yesy' ?'sel-yesy' :''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'yesy')">👩</button>
+              <button class="pmini ${i.person==='split'?'sel-split':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'split')">🤝</button>
+              <span>${i.category}</span>
+            </div>
           </div>
         </div>
         <div class="budget-row-right">
@@ -773,7 +916,10 @@ function renderBudget() {
             <div class="budget-row-amount" style="color:${amtCol}">$${fmt(i.amount)}${freqLbl[i.frequency]}</div>
             ${i.frequency!=='monthly'?`<div class="budget-row-monthly">$${fmt(toMo(i.amount,i.frequency))}/mo</div>`:''}
           </div>
-          <button class="btn-remove-row" onclick="removeBudget(${i.id})">
+          <button class="btn-edit" style="opacity:0" class="btn-remove-row" onclick="openEditBudget(${i.id})" title="Edit">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+          <button class="btn-remove-row" onclick="removeBudget(${i.id})" title="Delete">
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
