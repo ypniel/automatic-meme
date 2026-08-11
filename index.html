@@ -421,8 +421,10 @@ input::placeholder { color: #B8B3AB; }
   <div class="header-inner">
     <div class="logo">
       <span class="logo-icon">🏡</span>
-      <span class="logo-title">Our Home</span>
-      <span class="logo-sub">David &amp; Yesy</span>
+      <div>
+        <div class="logo-title">Our Home — David &amp; Yesy</div>
+        <div class="logo-sub">16/101 Alma Road, St Kilda East VIC 3183</div>
+      </div>
     </div>
     <div id="sync-status" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
       <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#D1C9BF;display:inline-block"></span>
@@ -481,6 +483,17 @@ input::placeholder { color: #B8B3AB; }
 
   <!-- ===== BUDGET TAB ===== -->
   <div id="budget-tab" style="display:none">
+
+    <!-- Bank Details -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-sm)">
+      <div style="width:44px;height:44px;border-radius:10px;background:#FFCC00;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+        <img src="https://www.commbank.com.au/favicon-32x32.png" alt="CBA" width="28" height="28" onerror="this.parentElement.innerHTML='<span style=\'font-size:11px;font-weight:700;color:#000\'>CBA</span>'">
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Commonwealth Bank</div>
+        <div style="font-size:12px;color:var(--muted)">BSB <span style="font-weight:600;color:var(--text)">067 873</span> &nbsp;·&nbsp; Account <span style="font-weight:600;color:var(--text)">2540 1832</span></div>
+      </div>
+    </div>
 
     <div id="budget-summary" class="budget-summary"></div>
 
