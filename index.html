@@ -377,6 +377,10 @@ input::placeholder { color: #B8B3AB; }
       <span class="logo-title">Our Home</span>
       <span class="logo-sub">David &amp; Yesy</span>
     </div>
+    <div id="sync-status" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
+      <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#D1C9BF;display:inline-block"></span>
+      <span id="sync-label">Connecting…</span>
+    </div>
     <div class="tab-group">
       <button class="tab-btn active" id="tab-furniture" onclick="switchTab('furniture')">🛋️ Shopping</button>
       <button class="tab-btn" id="tab-budget" onclick="switchTab('budget')">💰 Budget</button>
@@ -485,24 +489,70 @@ input::placeholder { color: #B8B3AB; }
 
 </main>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <script>
+// ===== FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCS_C43bv77bDtRaVOqu4OctFI_l8hD8cE",
+  authDomain: "our-home-cda87.firebaseapp.com",
+  databaseURL: "https://our-home-cda87-default-rtdb.firebaseio.com",
+  projectId: "our-home-cda87",
+  storageBucket: "our-home-cda87.firebasestorage.app",
+  messagingSenderId: "107257788656",
+  appId: "1:107257788656:web:c5fd25aab407c89cf72a35"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dataRef = db.ref('our-home');
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (status === 'live')   { dot.style.background='#16A34A'; lbl.textContent='Synced'; }
+  if (status === 'saving') { dot.style.background='#F59E0B'; lbl.textContent='Saving…'; }
+  if (status === 'error')  { dot.style.background='#DC2626'; lbl.textContent='Offline'; }
+}
+
 // ===== STATE =====
 let S = { furniture: [], budget: [] };
 let fFilter = 'all';
 let selPerson = 'david';
 let selFPerson = 'david';
+let _saving = false;
 
-const save = () => localStorage.setItem('our-home-v3', JSON.stringify(S));
+const save = () => {
+  setSyncStatus('saving');
+  _saving = true;
+  dataRef.set(S)
+    .then(()=>{ setSyncStatus('live'); _saving=false; })
+    .catch(()=>{ setSyncStatus('error'); _saving=false; });
+  localStorage.setItem('our-home-v3', JSON.stringify(S));
+};
+
 const load = () => {
+  // Load from localStorage immediately while Firebase connects
   try {
-    // Try current key first
-    let d = localStorage.getItem('our-home-v3');
-    // Fall back to previous keys if current is empty
-    if (!d) d = localStorage.getItem('our-home-v2');
-    if (!d) d = localStorage.getItem('our-home-app');
-    if (d) { S = JSON.parse(d); save(); } // migrate to current key
+    let d = localStorage.getItem('our-home-v3')
+         || localStorage.getItem('our-home-v2')
+         || localStorage.getItem('our-home-app');
+    if (d) S = JSON.parse(d);
   } catch(e) {}
 };
+
+function initFirebase() {
+  // Real-time listener — updates both devices instantly
+  dataRef.on('value', snapshot => {
+    const data = snapshot.val();
+    if (data && !_saving) {
+      S = { furniture: data.furniture || [], budget: data.budget || [] };
+      localStorage.setItem('our-home-v3', JSON.stringify(S));
+      renderFurniture();
+      renderBudget();
+    }
+    setSyncStatus('live');
+  }, () => setSyncStatus('error'));
+}
 
 const $  = id => document.getElementById(id);
 const fmt = n  => Number(n).toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0});
@@ -739,6 +789,7 @@ load();
 updateBudgetForm();
 renderFurniture();
 renderBudget();
+initFirebase();
 $('f-name').addEventListener('keydown',  e=>e.key==='Enter'&&addFurniture());
 $('b-amount').addEventListener('keydown',e=>e.key==='Enter'&&addBudget());
 </script>
