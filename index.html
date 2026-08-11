@@ -311,17 +311,18 @@ input::placeholder { color: #B8B3AB; }
 .budget-row-monthly { font-size: 11px; color: var(--muted); text-align: right; }
 
 .tag {
-  display: inline-flex; align-items: center;
-  padding: 2px 8px; border-radius: var(--radius-pill);
-  font-size: 10px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 600;
   cursor: pointer; user-select: none;
-  transition: opacity .15s;
+  border: 1.5px solid transparent;
+  transition: all .15s;
 }
-.tag:hover { opacity: .75; }
-.tag::after { content: ' ✎'; font-size: 9px; opacity: .6; }
+.tag:hover { filter: brightness(.95); border-color: currentColor; }
 .tag-david { background: var(--david-bg); color: var(--david); }
 .tag-yesy  { background: var(--yesy-bg);  color: var(--yesy); }
 .tag-split { background: var(--sage-light); color: var(--sage-dark); }
+.tag-pencil { font-size: 10px; opacity: .5; }
 
 .list-total {
   margin-top: 12px; padding-top: 12px;
@@ -399,6 +400,14 @@ input::placeholder { color: #B8B3AB; }
         <div style="display:flex;gap:10px">
           <input id="f-qty"  type="number" placeholder="Qty" value="1" min="1" style="width:90px;flex-shrink:0">
           <input id="f-note" type="text"   placeholder="Note (optional)" style="flex:1">
+        </div>
+        <div class="full">
+          <p class="person-label">Who's buying this?</p>
+          <div class="person-select">
+            <button type="button" class="person-opt sel-david" id="fp-david" onclick="selectFPerson('david')">👨 David</button>
+            <button type="button" class="person-opt"           id="fp-yesy"  onclick="selectFPerson('yesy')">👩 Yesy</button>
+            <button type="button" class="person-opt"           id="fp-split" onclick="selectFPerson('split')">🤝 Split 50/50</button>
+          </div>
         </div>
       </div>
       <button class="btn-primary" onclick="addFurniture()">+ Add to List</button>
@@ -481,6 +490,7 @@ input::placeholder { color: #B8B3AB; }
 let S = { furniture: [], budget: [] };
 let fFilter = 'all';
 let selPerson = 'david';
+let selFPerson = 'david';
 
 const save = () => localStorage.setItem('our-home-v3', JSON.stringify(S));
 const load = () => {
@@ -506,6 +516,13 @@ function switchTab(tab) {
 }
 
 // ===== FURNITURE =====
+function selectFPerson(p) {
+  selFPerson = p;
+  ['david','yesy','split'].forEach(x => {
+    $('fp-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
+  });
+}
+
 function addFurniture() {
   const name = $('f-name').value.trim();
   if (!name) { $('f-name').focus(); return; }
@@ -517,6 +534,7 @@ function addFurniture() {
     price:    parseFloat($('f-price').value) || 0,
     qty:      parseInt($('f-qty').value)     || 1,
     note:     $('f-note').value.trim(),
+    person:   selFPerson,
     purchased: false
   });
   ['f-name','f-store','f-url','f-image','f-price','f-note'].forEach(id => $(id).value='');
@@ -527,6 +545,11 @@ function addFurniture() {
 function removeFurniture(id) { S.furniture = S.furniture.filter(i=>i.id!==id); save(); renderFurniture(); }
 function togglePurchased(id) { const i=S.furniture.find(x=>x.id===id); if(i) i.purchased=!i.purchased; save(); renderFurniture(); }
 function updQty(id, d) { const i=S.furniture.find(x=>x.id===id); if(i) i.qty=Math.max(1,i.qty+d); save(); renderFurniture(); }
+function cycleFurniturePerson(id) {
+  const i=S.furniture.find(x=>x.id===id); if(!i) return;
+  i.person = !i.person||i.person==='david'?'yesy':i.person==='yesy'?'split':'david';
+  save(); renderFurniture();
+}
 
 function setFFilter(f) {
   fFilter = f;
@@ -575,10 +598,15 @@ function renderFurniture() {
         ${item.url ? `<a href="${item.url}" target="_blank" class="thumb-link"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : ''}
       </div>
       <div class="item-body">
-        <div class="item-name">${item.name}</div>
-        ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
-        ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
-        ${item.price>0 ? `<div class="item-price">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div>
+            <div class="item-name">${item.name}</div>
+            ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
+            ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
+          </div>
+          ${personTag(item.person||'split', item.id, 'cycleFurniturePerson')}
+        </div>
+        ${item.price>0 ? `<div class="item-price" style="margin-top:8px">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
         <div class="item-actions">
           <div class="qty-control">
             <button class="qty-btn" onclick="updQty(${item.id},-1)">−</button>
@@ -637,11 +665,13 @@ function personShare(entry,p) {
   return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
 }
 
-function personTag(p, id) {
-  const click = id !== undefined ? `onclick="cyclePerson(${id})" title="Click to change"` : '';
-  if (p==='david') return `<span class="tag tag-david" ${click}>👨 David</span>`;
-  if (p==='yesy')  return `<span class="tag tag-yesy"  ${click}>👩 Yesy</span>`;
-  return `<span class="tag tag-split" ${click}>🤝 Split</span>`;
+function personTag(p, id, fn) {
+  const fn2 = fn || 'cyclePerson';
+  const click = id !== undefined ? `onclick="${fn2}(${id})" title="Tap to change"` : '';
+  const pencil = id !== undefined ? `<span class="tag-pencil">✏️</span>` : '';
+  if (p==='david') return `<span class="tag tag-david" ${click}>👨 David${pencil}</span>`;
+  if (p==='yesy')  return `<span class="tag tag-yesy"  ${click}>👩 Yesy${pencil}</span>`;
+  return `<span class="tag tag-split" ${click}>🤝 Split${pencil}</span>`;
 }
 
 function renderBudget() {
