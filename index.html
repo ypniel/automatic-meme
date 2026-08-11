@@ -483,7 +483,16 @@ let fFilter = 'all';
 let selPerson = 'david';
 
 const save = () => localStorage.setItem('our-home-v3', JSON.stringify(S));
-const load = () => { try { const d = localStorage.getItem('our-home-v3'); if(d) S = JSON.parse(d); } catch(e){} };
+const load = () => {
+  try {
+    // Try current key first
+    let d = localStorage.getItem('our-home-v3');
+    // Fall back to previous keys if current is empty
+    if (!d) d = localStorage.getItem('our-home-v2');
+    if (!d) d = localStorage.getItem('our-home-app');
+    if (d) { S = JSON.parse(d); save(); } // migrate to current key
+  } catch(e) {}
+};
 
 const $  = id => document.getElementById(id);
 const fmt = n  => Number(n).toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0});
