@@ -314,7 +314,11 @@ input::placeholder { color: #B8B3AB; }
   display: inline-flex; align-items: center;
   padding: 2px 8px; border-radius: var(--radius-pill);
   font-size: 10px; font-weight: 600;
+  cursor: pointer; user-select: none;
+  transition: opacity .15s;
 }
+.tag:hover { opacity: .75; }
+.tag::after { content: ' ✎'; font-size: 9px; opacity: .6; }
 .tag-david { background: var(--david-bg); color: var(--david); }
 .tag-yesy  { background: var(--yesy-bg);  color: var(--yesy); }
 .tag-split { background: var(--sage-light); color: var(--sage-dark); }
@@ -613,16 +617,22 @@ function addBudget() {
   save(); renderBudget();
 }
 function removeBudget(id) { S.budget=S.budget.filter(i=>i.id!==id); save(); renderBudget(); }
+function cyclePerson(id) {
+  const i = S.budget.find(x=>x.id===id); if(!i) return;
+  i.person = i.person==='david'?'yesy':i.person==='yesy'?'split':'david';
+  save(); renderBudget();
+}
 
 function personShare(entry,p) {
   if (entry.person==='split') return toMo(entry.amount,entry.frequency)/2;
   return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
 }
 
-function personTag(p) {
-  if (p==='david') return `<span class="tag tag-david">👨 David</span>`;
-  if (p==='yesy')  return `<span class="tag tag-yesy">👩 Yesy</span>`;
-  return `<span class="tag tag-split">🤝 Split</span>`;
+function personTag(p, id) {
+  const click = id !== undefined ? `onclick="cyclePerson(${id})" title="Click to change"` : '';
+  if (p==='david') return `<span class="tag tag-david" ${click}>👨 David</span>`;
+  if (p==='yesy')  return `<span class="tag tag-yesy"  ${click}>👩 Yesy</span>`;
+  return `<span class="tag tag-split" ${click}>🤝 Split</span>`;
 }
 
 function renderBudget() {
@@ -666,7 +676,7 @@ function renderBudget() {
           <span class="budget-row-icon">${catEmoji[i.category]||'💰'}</span>
           <div style="min-width:0">
             <div class="budget-row-name">${i.description}</div>
-            <div class="budget-row-meta">${personTag(i.person)}<span>${i.category}</span></div>
+            <div class="budget-row-meta">${personTag(i.person, i.id)}<span>${i.category}</span></div>
           </div>
         </div>
         <div class="budget-row-right">
