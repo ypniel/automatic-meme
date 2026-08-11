@@ -545,6 +545,44 @@ input::placeholder { color: #B8B3AB; }
         <div id="expense-total" class="list-total" style="display:none"></div>
       </div>
     </div>
+
+    <!-- Joint Account Log -->
+    <div style="margin-top:28px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">🏦 Joint Account Contributions</div>
+
+      <!-- Add contribution form -->
+      <div class="card" style="padding:20px;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="grid-column:1/-1">
+            <div class="modal-label">Description</div>
+            <input id="c-desc" type="text" placeholder="e.g. Rent payment, Groceries top-up">
+          </div>
+          <div>
+            <div class="modal-label">Amount ($)</div>
+            <input id="c-amount" type="number" placeholder="0" min="0" step="0.01">
+          </div>
+          <div>
+            <div class="modal-label">Date</div>
+            <input id="c-date" type="date">
+          </div>
+          <div style="grid-column:1/-1">
+            <div class="modal-label">Paid by</div>
+            <div class="person-select">
+              <button type="button" class="person-opt sel-david" id="cp-david" onclick="selectCPerson('david')">👨 David</button>
+              <button type="button" class="person-opt"           id="cp-yesy"  onclick="selectCPerson('yesy')">👩 Yesy</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="addContribution()">+ Log Contribution</button>
+      </div>
+
+      <!-- Contributions list -->
+      <div class="card" style="padding:20px">
+        <div id="contrib-list"></div>
+        <div id="contrib-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No contributions logged yet</div>
+        <div id="contrib-total" class="list-total" style="display:none"></div>
+      </div>
+    </div>
   </div>
 
 </main>
@@ -621,7 +659,7 @@ function setSyncStatus(status) {
 }
 
 // ===== STATE =====
-let S = { furniture: [], budget: [] };
+let S = { furniture: [], budget: [], contributions: [] };
 let fFilter = 'all';
 let selPerson = 'david';
 let selFPerson = 'david';
@@ -651,10 +689,11 @@ function initFirebase() {
   dataRef.on('value', snapshot => {
     const data = snapshot.val();
     if (data && !_saving) {
-      S = { furniture: data.furniture || [], budget: data.budget || [] };
+      S = { furniture: data.furniture || [], budget: data.budget || [], contributions: data.contributions || [] };
       localStorage.setItem('our-home-v3', JSON.stringify(S));
       renderFurniture();
       renderBudget();
+      renderContributions();
     }
     setSyncStatus('live');
   }, () => setSyncStatus('error'));
@@ -759,10 +798,22 @@ function renderFurniture() {
   const spentV  = all.filter(i=>i.purchased).reduce((s,i)=>s+(i.price*i.qty),0);
   const doneC   = all.filter(i=>i.purchased).length;
 
+  // Per-person spend (split items count 50/50)
+  const personSpend = (p) => all.reduce((s,i) => {
+    const v = i.price * i.qty;
+    if (i.person === p) return s + v;
+    if (i.person === 'split') return s + v/2;
+    return s;
+  }, 0);
+  const davidTotal = personSpend('david');
+  const yesyTotal  = personSpend('yesy');
+
   sumEl.style.display='flex';
   sumEl.innerHTML = `
     <div class="summary-chip"><span class="chip-icon">📋</span><div><div class="chip-label">Items</div><div class="chip-val">${doneC}/${all.length} done</div></div></div>
-    ${totalV>0?`<div class="summary-chip"><span class="chip-icon">💵</span><div><div class="chip-label">Spent / Total</div><div class="chip-val">$${fmt(spentV)} / $${fmt(totalV)}</div></div></div>`:''}
+    ${totalV>0?`<div class="summary-chip"><span class="chip-icon">💵</span><div><div class="chip-label">Total</div><div class="chip-val">$${fmt(totalV)}</div></div></div>`:''}
+    ${davidTotal>0?`<div class="summary-chip"><span class="chip-icon">👨</span><div><div class="chip-label">David's share</div><div class="chip-val" style="color:var(--david)">$${fmt(davidTotal)}</div></div></div>`:''}
+    ${yesyTotal>0?`<div class="summary-chip"><span class="chip-icon">👩</span><div><div class="chip-label">Yesy's share</div><div class="chip-val" style="color:var(--yesy)">$${fmt(yesyTotal)}</div></div></div>`:''}
   `;
 
   if (shown.length===0) {
@@ -943,12 +994,87 @@ function renderBudget() {
   renderList(expense, 'expense-list', 'expense-empty', 'expense-total', false);
 }
 
+// ===== CONTRIBUTIONS =====
+let selCPerson = 'david';
+
+function selectCPerson(p) {
+  selCPerson = p;
+  ['david','yesy'].forEach(x => {
+    $('cp-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
+  });
+}
+
+function addContribution() {
+  const desc   = $('c-desc').value.trim();
+  const amount = parseFloat($('c-amount').value);
+  const date   = $('c-date').value;
+  if (!desc || !amount || !date) return;
+  S.contributions.unshift({ id: Date.now(), desc, amount, date, person: selCPerson });
+  $('c-desc').value=''; $('c-amount').value='';
+  save(); renderContributions();
+}
+
+function removeContribution(id) {
+  S.contributions = S.contributions.filter(i=>i.id!==id);
+  save(); renderContributions();
+}
+
+function renderContributions() {
+  const list  = $('contrib-list');
+  const empty = $('contrib-empty');
+  const total = $('contrib-total');
+  const items = S.contributions || [];
+
+  if (items.length===0) { list.innerHTML=''; empty.style.display=''; total.style.display='none'; return; }
+  empty.style.display='none';
+
+  const davidTotal = items.filter(i=>i.person==='david').reduce((s,i)=>s+i.amount,0);
+  const yesyTotal  = items.filter(i=>i.person==='yesy').reduce((s,i)=>s+i.amount,0);
+  const grandTotal = items.reduce((s,i)=>s+i.amount,0);
+
+  total.style.display='flex'; total.style.flexDirection='column'; total.style.gap='4px';
+  total.innerHTML = `
+    <div style="display:flex;justify-content:space-between"><span>Total contributed</span><span>$${fmt(grandTotal)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)">
+      <span>👨 David</span><span style="color:var(--david)">$${fmt(davidTotal)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)">
+      <span>👩 Yesy</span><span style="color:var(--yesy)">$${fmt(yesyTotal)}</span>
+    </div>`;
+
+  list.innerHTML = items.map(i => {
+    const d = new Date(i.date);
+    const dateStr = d.toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+    const isD = i.person==='david';
+    return `<div class="budget-row fade-in" style="align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+        <div style="width:36px;height:36px;border-radius:10px;background:${isD?'var(--david-bg)':'var(--yesy-bg)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isD?'👨':'👩'}</div>
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:500;color:var(--text)">${i.desc}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">
+            <span style="font-weight:600;color:${isD?'var(--david)':'var(--yesy)'}">${isD?'David':'Yesy'}</span> added to joint account · ${dateStr}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-top:2px">
+        <div style="font-size:14px;font-weight:700;color:var(--green)">+$${fmt(i.amount)}</div>
+        <button class="btn-remove-row" style="opacity:1" onclick="removeContribution(${i.id})">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ===== INIT =====
 load();
 updateBudgetForm();
 renderFurniture();
 renderBudget();
+renderContributions();
 initFirebase();
+// Set today's date as default for contribution form
+$('c-date').value = new Date().toISOString().split('T')[0];
 $('f-name').addEventListener('keydown',  e=>e.key==='Enter'&&addFurniture());
 $('b-amount').addEventListener('keydown',e=>e.key==='Enter'&&addBudget());
 </script>
