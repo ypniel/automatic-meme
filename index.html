@@ -146,7 +146,7 @@ input::placeholder { color: #B8B3AB; }
 .btn-primary:hover { opacity: .85; }
 
 /* ---- FILTER BAR ---- */
-.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .filter-pill {
   padding: 6px 16px;
   border-radius: var(--radius-pill);
@@ -481,16 +481,39 @@ input::placeholder { color: #B8B3AB; }
 
     <div id="f-summary" class="summary-strip" style="display:none"></div>
 
-    <div id="f-filters" class="filter-bar" style="display:none">
-      <button class="filter-pill active" id="ff-all"       onclick="setFFilter('all')">All</button>
-      <button class="filter-pill"        id="ff-pending"   onclick="setFFilter('pending')">Pending</button>
-      <button class="filter-pill"        id="ff-purchased" onclick="setFFilter('purchased')">Purchased</button>
+    <div id="f-filters" style="display:none">
+      <div class="filter-bar" style="margin-bottom:8px">
+        <button class="filter-pill active" id="ff-all"       onclick="setFFilter('all')">All</button>
+        <button class="filter-pill"        id="ff-pending"   onclick="setFFilter('pending')">Pending</button>
+        <button class="filter-pill"        id="ff-purchased" onclick="setFFilter('purchased')">Purchased</button>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-pill active" id="fp-all"   onclick="setFPersonFilter('all')">👥 All</button>
+        <button class="filter-pill"        id="fp-david" onclick="setFPersonFilter('david')">👨 David</button>
+        <button class="filter-pill"        id="fp-yesy"  onclick="setFPersonFilter('yesy')">👩 Yesy</button>
+        <button class="filter-pill"        id="fp-split" onclick="setFPersonFilter('split')">🤝 Split</button>
+      </div>
+      <div class="filter-bar" id="fb-bar" style="display:none"></div>
     </div>
 
     <div id="furniture-grid" class="furniture-grid"></div>
     <div id="furniture-empty" class="empty-state">
       <div class="empty-icon">🛋️</div>
       <p>Your shopping list is empty.<br>Add your first item above!</p>
+    </div>
+
+    <!-- WISHLIST -->
+    <div style="margin-top:32px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">💭 Wishlist — Items to Consider</div>
+      <div class="card" style="padding:20px;margin-bottom:16px">
+        <div style="display:flex;gap:10px">
+          <input id="w-name" type="text" placeholder="Item idea (e.g. Floor lamp for living room)" style="flex:1">
+          <input id="w-note" type="text" placeholder="Note (optional)" style="flex:1">
+          <button class="btn-primary" style="margin-top:0;white-space:nowrap" onclick="addWishlist()">+ Add</button>
+        </div>
+      </div>
+      <div id="wishlist-list"></div>
+      <div id="wishlist-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">No wishlist items yet — jot down ideas here!</div>
     </div>
   </div>
 
@@ -672,8 +695,10 @@ function setSyncStatus(status) {
 }
 
 // ===== STATE =====
-let S = { furniture: [], budget: [], contributions: [] };
+let S = { furniture: [], budget: [], contributions: [], wishlist: [] };
 let fFilter = 'all';
+let fPersonFilter = 'all';
+let fBrandFilter = 'all';
 let selPerson = 'david';
 let selFPerson = 'david';
 let _saving = false;
@@ -702,11 +727,12 @@ function initFirebase() {
   dataRef.on('value', snapshot => {
     const data = snapshot.val();
     if (data && !_saving) {
-      S = { furniture: data.furniture || [], budget: data.budget || [], contributions: data.contributions || [] };
+      S = { furniture: data.furniture || [], budget: data.budget || [], contributions: data.contributions || [], wishlist: data.wishlist || [] };
       localStorage.setItem('our-home-v3', JSON.stringify(S));
       renderFurniture();
       renderBudget();
       renderContributions();
+      renderWishlist();
     }
     setSyncStatus('live');
   }, () => setSyncStatus('error'));
@@ -792,20 +818,47 @@ function setFFilter(f) {
   renderFurniture();
 }
 
+function setFPersonFilter(p) {
+  fPersonFilter = p;
+  ['all','david','yesy','split'].forEach(x => {
+    $('fp-'+x).className = 'filter-pill' + (x===p ? ' active' : '');
+  });
+  renderFurniture();
+}
+
+function setFBrandFilter(b) {
+  fBrandFilter = b;
+  renderFurniture();
+}
+
 function renderFurniture() {
   const all = S.furniture;
   let shown = fFilter==='pending'   ? all.filter(i=>!i.purchased)
             : fFilter==='purchased' ? all.filter(i=> i.purchased) : all;
+  if (fPersonFilter !== 'all') shown = shown.filter(i => (i.person||'split') === fPersonFilter);
+  if (fBrandFilter  !== 'all') shown = shown.filter(i => (i.store||'').toLowerCase() === fBrandFilter);
 
   const grid  = $('furniture-grid');
   const empty = $('furniture-empty');
   const sumEl = $('f-summary');
   const filEl = $('f-filters');
+  const bBar  = $('fb-bar');
 
   if (all.length===0) {
-    grid.innerHTML=''; empty.style.display=''; sumEl.style.display='none'; filEl.style.display='none'; return;
+    grid.innerHTML=''; empty.style.display=''; sumEl.style.display='none'; filEl.style.display='none'; bBar.style.display='none'; return;
   }
-  empty.style.display='none'; filEl.style.display='flex';
+  empty.style.display='none'; filEl.style.display='';
+
+  // Brand filter bar — unique stores
+  const brands = [...new Set(all.map(i=>i.store).filter(Boolean))];
+  if (brands.length > 0) {
+    bBar.style.display='flex';
+    bBar.innerHTML = [`<button class="filter-pill ${fBrandFilter==='all'?'active':''}" onclick="setFBrandFilter('all')">🏪 All Brands</button>`,
+      ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter(${JSON.stringify(b.toLowerCase())})">${b}</button>`)
+    ].join('');
+  } else {
+    bBar.style.display='none';
+  }
 
   const totalV  = all.reduce((s,i)=>s+(i.price*i.qty),0);
   const spentV  = all.filter(i=>i.purchased).reduce((s,i)=>s+(i.price*i.qty),0);
@@ -1079,17 +1132,68 @@ function renderContributions() {
   }).join('');
 }
 
+// ===== WISHLIST =====
+function addWishlist() {
+  const name = $('w-name').value.trim();
+  if (!name) { $('w-name').focus(); return; }
+  if (!S.wishlist) S.wishlist = [];
+  S.wishlist.unshift({ id: Date.now(), name, note: $('w-note').value.trim() });
+  $('w-name').value=''; $('w-note').value='';
+  save(); renderWishlist();
+}
+
+function removeWishlist(id) {
+  S.wishlist = S.wishlist.filter(i=>i.id!==id);
+  save(); renderWishlist();
+}
+
+function promoteWishlist(id) {
+  const item = (S.wishlist||[]).find(i=>i.id===id);
+  if (!item) return;
+  // Pre-fill the add form and scroll up
+  $('f-name').value = item.name;
+  $('f-note').value = item.note || '';
+  switchTab('furniture');
+  $('f-name').scrollIntoView({ behavior:'smooth', block:'center' });
+  $('f-name').focus();
+  // Remove from wishlist
+  removeWishlist(id);
+}
+
+function renderWishlist() {
+  const items = S.wishlist || [];
+  const listEl  = $('wishlist-list');
+  const emptyEl = $('wishlist-empty');
+  if (items.length===0) { listEl.innerHTML=''; emptyEl.style.display=''; return; }
+  emptyEl.style.display='none';
+  listEl.innerHTML = items.map(i=>`
+    <div class="card fade-in" style="padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:20px">💭</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${i.name}</div>
+        ${i.note?`<div style="font-size:12px;color:var(--muted);margin-top:2px">${i.note}</div>`:''}
+      </div>
+      <button onclick="promoteWishlist(${i.id})" style="padding:6px 14px;border-radius:8px;border:1.5px solid var(--sage);background:var(--sage-light);color:var(--sage-dark);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">→ Add to list</button>
+      <button class="btn-delete" onclick="removeWishlist(${i.id})" title="Remove">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('');
+}
+
 // ===== INIT =====
 load();
+if (!S.wishlist) S.wishlist = [];
 updateBudgetForm();
 renderFurniture();
 renderBudget();
 renderContributions();
+renderWishlist();
 initFirebase();
 // Set today's date as default for contribution form
 $('c-date').value = new Date().toISOString().split('T')[0];
 $('f-name').addEventListener('keydown',  e=>e.key==='Enter'&&addFurniture());
 $('b-amount').addEventListener('keydown',e=>e.key==='Enter'&&addBudget());
+$('w-name').addEventListener('keydown',  e=>e.key==='Enter'&&addWishlist());
 </script>
 </body>
 </html>
