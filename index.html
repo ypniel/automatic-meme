@@ -495,10 +495,10 @@ input::placeholder { color: #B8B3AB; }
         <button class="filter-pill"        id="ff-purchased" onclick="setFFilter('purchased')">Purchased</button>
       </div>
       <div class="filter-bar">
-        <button class="filter-pill active" id="fp-all"   onclick="setFPersonFilter('all')">👥 All</button>
-        <button class="filter-pill"        id="fp-david" onclick="setFPersonFilter('david')">👨 David</button>
-        <button class="filter-pill"        id="fp-yesy"  onclick="setFPersonFilter('yesy')">👩 Yesy</button>
-        <button class="filter-pill"        id="fp-split" onclick="setFPersonFilter('split')">🤝 Split</button>
+        <button class="filter-pill active" id="fpf-all"   onclick="setFPersonFilter('all')">👥 All</button>
+        <button class="filter-pill"        id="fpf-david" onclick="setFPersonFilter('david')">👨 David</button>
+        <button class="filter-pill"        id="fpf-yesy"  onclick="setFPersonFilter('yesy')">👩 Yesy</button>
+        <button class="filter-pill"        id="fpf-split" onclick="setFPersonFilter('split')">🤝 Split</button>
       </div>
       <div class="filter-bar" id="fb-bar" style="display:none"></div>
     </div>
@@ -828,7 +828,7 @@ function setFFilter(f) {
 function setFPersonFilter(p) {
   fPersonFilter = p;
   ['all','david','yesy','split'].forEach(x => {
-    $('fp-'+x).className = 'filter-pill' + (x===p ? ' active' : '');
+    $('fpf-'+x).className = 'filter-pill' + (x===p ? ' active' : '');
   });
   renderFurniture();
 }
@@ -861,7 +861,7 @@ function renderFurniture() {
   if (brands.length > 0) {
     bBar.style.display='flex';
     bBar.innerHTML = [`<button class="filter-pill ${fBrandFilter==='all'?'active':''}" onclick="setFBrandFilter('all')">🏪 All Brands</button>`,
-      ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter(${JSON.stringify(b.toLowerCase())})">${b}</button>`)
+      ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter('${b.toLowerCase().replace(/'/g,"&#39;")}')">${b}</button>`)
     ].join('');
   } else {
     bBar.style.display='none';
