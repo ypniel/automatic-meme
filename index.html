@@ -67,11 +67,18 @@ header {
 .logo-title { font-size: 17px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .logo-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-@media (max-width: 480px) {
-  .header-inner { padding: 10px 16px; gap: 8px; }
-  .logo-title { font-size: 15px; }
+.logo-short { display: none; }
+
+@media (max-width: 540px) {
+  .header-inner { padding: 10px 14px; gap: 6px; }
+  .logo-title { font-size: 14px; }
   .logo-sub { display: none; }
-  .tab-btn { padding: 7px 14px; font-size: 13px; }
+  .logo-icon { font-size: 20px; }
+  .logo-full { display: none; }
+  .logo-short { display: inline; }
+  #sync-label { display: none; }
+  .tab-btn { padding: 7px 12px; font-size: 12px; }
+  .tab-group { padding: 3px; gap: 2px; }
 }
 
 .tab-group {
@@ -435,7 +442,7 @@ input::placeholder { color: #B8B3AB; }
     <div class="logo">
       <span class="logo-icon">🏡</span>
       <div>
-        <div class="logo-title">Our Home — David &amp; Yesy</div>
+        <div class="logo-title"><span class="logo-full">Our Home — David &amp; Yesy</span><span class="logo-short">Our Home</span></div>
         <div class="logo-sub">16/101 Alma Road, St Kilda East VIC 3183</div>
       </div>
     </div>
