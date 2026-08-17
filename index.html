@@ -139,41 +139,10 @@ input[type=text], input[type=number], input[type=url], input[type=date], select 
 input:focus, select:focus { border-color: var(--sage); background: #fff; }
 input::placeholder { color: #B8B3AB; }
 
-/* URL fetch row */
-.url-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
-.url-row input { flex: 1; }
-.btn-fetch {
-  padding: 10px 16px;
-  background: var(--sage); color: #fff;
-  border: none; border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  cursor: pointer; white-space: nowrap; transition: opacity .15s;
-  display: flex; align-items: center; gap: 6px;
-}
-.btn-fetch:hover { opacity: .85; }
-.btn-fetch:disabled { opacity: .5; cursor: default; }
-
-/* fetch status */
-.fetch-status {
-  font-size: 12px; color: var(--muted); margin-bottom: 10px; min-height: 18px;
-  display: flex; align-items: center; gap: 6px;
-}
-
-/* preview row */
-.item-preview {
-  display: none; gap: 12px; align-items: center;
-  background: var(--bg); border-radius: var(--radius-sm);
-  padding: 10px 14px; margin-bottom: 12px;
-}
-.item-preview.show { display: flex; }
-.preview-img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--border); flex-shrink: 0; }
-.preview-name { font-size: 14px; font-weight: 600; }
-.preview-store { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
 /* qty + person row */
 .add-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
 .add-row .qty-field { width: 90px; flex-shrink: 0; }
-.add-row .name-override { flex: 1; min-width: 140px; }
+.add-row .name-field { flex: 1; min-width: 140px; }
 
 .btn-primary {
   padding: 10px 22px;
@@ -501,28 +470,24 @@ input::placeholder { color: #B8B3AB; }
     <div class="card form-card">
       <p class="section-title">Add Item</p>
 
-      <!-- URL input -->
-      <div class="url-row">
-        <input id="f-url" type="url" placeholder="Paste product URL (e.g. ikea.com/au/…)">
-        <button class="btn-fetch" id="btn-fetch" onclick="fetchProduct()">
-          <span id="fetch-icon">🔍</span> Fetch
+      <!-- URL + fetch -->
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="f-url" type="url" placeholder="Paste product URL — name &amp; image auto-filled" style="flex:1">
+        <button id="btn-fetch" onclick="fetchProduct()" style="padding:10px 16px;background:var(--sage);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
+          <span id="fetch-icon">🔍</span><span id="fetch-label">Fetch</span>
         </button>
       </div>
-      <div class="fetch-status" id="fetch-status"></div>
 
-      <!-- Preview -->
-      <div class="item-preview" id="item-preview">
-        <img class="preview-img" id="preview-img" src="" alt="">
-        <div>
-          <div class="preview-name" id="preview-name"></div>
-          <div class="preview-store" id="preview-store"></div>
-        </div>
+      <!-- Preview (shown after fetch) -->
+      <div id="item-preview" style="display:none;gap:12px;align-items:center;background:var(--bg);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px">
+        <img id="preview-img" src="" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--border);flex-shrink:0">
+        <div><div id="preview-name" style="font-size:14px;font-weight:600"></div><div id="preview-store" style="font-size:12px;color:var(--muted);margin-top:2px"></div></div>
       </div>
 
       <!-- Name override + qty -->
       <div class="add-row" style="margin-bottom:12px">
-        <input id="f-name" type="text" placeholder="Item name (auto-filled or type manually)" class="name-override">
-        <input id="f-qty" type="number" placeholder="Qty" value="1" min="1" class="qty-field">
+        <input id="f-name" type="text" placeholder="Item name (edit if needed)" class="name-field">
+        <input id="f-qty"  type="number" placeholder="Qty" value="1" min="1" class="qty-field">
       </div>
 
       <!-- Person -->
@@ -709,6 +674,7 @@ input::placeholder { color: #B8B3AB; }
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <script>
 // ===== FIREBASE =====
@@ -743,9 +709,6 @@ let selFPerson = 'david';
 let selCPerson = 'david';
 let _saving = false;
 
-// Current pending fetch data
-let pendingFetch = null;
-
 const save = () => {
   setSyncStatus('saving');
   _saving = true;
@@ -766,20 +729,25 @@ const load = () => {
 };
 
 function initFirebase() {
-  dataRef.on('value', snapshot => {
-    const data = snapshot.val();
-    if (data && !_saving) {
-      S = {
-        furniture:     data.furniture     || [],
-        budget:        data.budget        || [],
-        contributions: data.contributions || [],
-        wishlist:      data.wishlist      || []
-      };
-      localStorage.setItem('our-home-v3', JSON.stringify(S));
-      renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
-    }
-    setSyncStatus('live');
-  }, () => setSyncStatus('error'));
+  // Sign in anonymously so Firebase rules (auth != null) allow read/write
+  firebase.auth().signInAnonymously().catch(()=>{});
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) return;
+    dataRef.on('value', snapshot => {
+      const data = snapshot.val();
+      if (data && !_saving) {
+        S = {
+          furniture:     data.furniture     || [],
+          budget:        data.budget        || [],
+          contributions: data.contributions || [],
+          wishlist:      data.wishlist      || []
+        };
+        localStorage.setItem('our-home-v3', JSON.stringify(S));
+        renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
+      }
+      setSyncStatus('live');
+    }, () => setSyncStatus('error'));
+  });
 }
 
 const $   = id => document.getElementById(id);
@@ -794,61 +762,51 @@ function switchTab(tab) {
 }
 
 // ===== URL FETCH =====
-async function fetchProduct() {
-  const url = $('f-url').value.trim();
-  if (!url) { $('f-url').focus(); return; }
-
-  const btn = $('btn-fetch');
-  const statusEl = $('fetch-status');
-  const preview = $('item-preview');
-
-  btn.disabled = true;
-  $('fetch-icon').outerHTML = '<span id="fetch-icon" class="spinner"></span>';
-  statusEl.innerHTML = 'Fetching product info…';
-  preview.classList.remove('show');
-
-  try {
-    const apiUrl = 'https://api.microlink.io/?url=' + encodeURIComponent(url);
-    const res = await fetch(apiUrl);
-    const json = await res.json();
-
-    if (json.status === 'success' && json.data) {
-      const d = json.data;
-      const name  = d.title  || '';
-      const image = d.image  ? d.image.url  : (d.screenshot ? d.screenshot.url : '');
-      const store = d.publisher || extractDomain(url);
-
-      pendingFetch = { url, imageUrl: image, store, name };
-
-      $('f-name').value = name;
-      $('preview-name').textContent  = name  || 'Untitled';
-      $('preview-store').textContent = store || '';
-      if (image) {
-        $('preview-img').src = image;
-        $('preview-img').style.display = '';
-      } else {
-        $('preview-img').style.display = 'none';
-      }
-      preview.classList.add('show');
-      statusEl.innerHTML = '<span style="color:var(--sage)">✓ Got it! Edit the name if needed, then click Add.</span>';
-    } else {
-      statusEl.innerHTML = '<span style="color:var(--muted)">Couldn\'t auto-fill — type the name manually below.</span>';
-      pendingFetch = { url, imageUrl: '', store: extractDomain(url), name: '' };
-    }
-  } catch(e) {
-    statusEl.innerHTML = '<span style="color:var(--muted)">Couldn\'t reach the page — type the name manually below.</span>';
-    pendingFetch = { url, imageUrl: '', store: extractDomain(url), name: '' };
-  }
-
-  btn.disabled = false;
-  $('fetch-icon').outerHTML = '<span id="fetch-icon">🔍</span>';
-}
+let _fetchData = null;
 
 function extractDomain(url) {
   try {
     const h = new URL(url).hostname.replace('www.','');
-    return h.split('.')[0].charAt(0).toUpperCase() + h.split('.')[0].slice(1);
+    const part = h.split('.')[0];
+    return part.charAt(0).toUpperCase() + part.slice(1);
   } catch(e) { return ''; }
+}
+
+async function fetchProduct() {
+  const url = $('f-url').value.trim();
+  if (!url) { $('f-url').focus(); return; }
+
+  // Show spinner
+  $('fetch-label').textContent = '…';
+  $('fetch-icon').textContent = '';
+  $('btn-fetch').disabled = true;
+
+  try {
+    const res  = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
+    const json = await res.json();
+    const d    = json.status === 'success' && json.data ? json.data : null;
+
+    const name  = (d && d.title)  || '';
+    const image = d ? (d.image && d.image.url) || '' : '';
+    const store = d ? (d.publisher || extractDomain(url)) : extractDomain(url);
+
+    _fetchData = { url, imageUrl: image, store, name };
+
+    if (name) $('f-name').value = name;
+    $('preview-name').textContent  = name  || extractDomain(url) || 'Item';
+    $('preview-store').textContent = store || '';
+    if (image) { $('preview-img').src = image; $('preview-img').style.display=''; }
+    else { $('preview-img').style.display='none'; }
+    $('item-preview').style.display = 'flex';
+  } catch(e) {
+    // Silently fall through — user can type name manually
+    _fetchData = { url, imageUrl: '', store: extractDomain(url), name: '' };
+    $('item-preview').style.display = 'none';
+  }
+
+  $('fetch-label').textContent = 'Fetch';
+  $('fetch-icon').textContent  = '🔍';
+  $('btn-fetch').disabled = false;
 }
 
 // ===== FURNITURE =====
@@ -860,15 +818,15 @@ function selectFPerson(p) {
 }
 
 function addFurniture() {
-  const name = ($('f-name').value.trim()) || (pendingFetch && pendingFetch.name) || '';
-  if (!name) { $('f-name').focus(); $('f-name').placeholder='Please enter an item name'; return; }
+  const name = $('f-name').value.trim() || (_fetchData && _fetchData.name) || '';
+  if (!name) { $('f-name').focus(); return; }
 
   S.furniture.unshift({
     id:        Date.now(),
     name,
-    store:     pendingFetch ? pendingFetch.store    : '',
-    url:       pendingFetch ? pendingFetch.url      : $('f-url').value.trim(),
-    imageUrl:  pendingFetch ? pendingFetch.imageUrl : '',
+    store:     _fetchData ? _fetchData.store    : '',
+    url:       _fetchData ? _fetchData.url      : $('f-url').value.trim(),
+    imageUrl:  _fetchData ? _fetchData.imageUrl : '',
     price:     0,
     qty:       parseInt($('f-qty').value) || 1,
     note:      '',
@@ -876,11 +834,9 @@ function addFurniture() {
     purchased: false
   });
 
-  $('f-url').value = ''; $('f-name').value = ''; $('f-qty').value = 1;
-  $('fetch-status').innerHTML = '';
-  $('item-preview').classList.remove('show');
-  pendingFetch = null;
-
+  $('f-name').value=''; $('f-url').value=''; $('f-qty').value=1;
+  $('item-preview').style.display='none';
+  _fetchData = null;
   save(); renderFurniture();
 }
 
