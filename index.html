@@ -60,13 +60,12 @@ header {
 .header-inner {
   max-width: 960px; margin: 0 auto;
   padding: 14px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
-.logo { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.logo { display: flex; align-items: center; gap: 10px; min-width: 0; flex-shrink: 1; }
 .logo-icon { font-size: 22px; font-family: 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; flex-shrink: 0; }
 .logo-title { font-size: 17px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .logo-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 .logo-short { display: none; }
 
 @media (max-width: 540px) {
@@ -87,6 +86,7 @@ header {
   padding: 4px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .tab-btn {
   padding: 8px 20px;
@@ -125,9 +125,7 @@ main { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
 
 /* ---- FORM ---- */
 .form-card { padding: 24px; margin-bottom: 24px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.form-grid .full { grid-column: 1 / -1; }
-input[type=text], input[type=number], select {
+input[type=text], input[type=number], input[type=url], input[type=date], select {
   width: 100%; padding: 10px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -141,8 +139,43 @@ input[type=text], input[type=number], select {
 input:focus, select:focus { border-color: var(--sage); background: #fff; }
 input::placeholder { color: #B8B3AB; }
 
+/* URL fetch row */
+.url-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+.url-row input { flex: 1; }
+.btn-fetch {
+  padding: 10px 16px;
+  background: var(--sage); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: opacity .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-fetch:hover { opacity: .85; }
+.btn-fetch:disabled { opacity: .5; cursor: default; }
+
+/* fetch status */
+.fetch-status {
+  font-size: 12px; color: var(--muted); margin-bottom: 10px; min-height: 18px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* preview row */
+.item-preview {
+  display: none; gap: 12px; align-items: center;
+  background: var(--bg); border-radius: var(--radius-sm);
+  padding: 10px 14px; margin-bottom: 12px;
+}
+.item-preview.show { display: flex; }
+.preview-img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; background: var(--border); flex-shrink: 0; }
+.preview-name { font-size: 14px; font-weight: 600; }
+.preview-store { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* qty + person row */
+.add-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.add-row .qty-field { width: 90px; flex-shrink: 0; }
+.add-row .name-override { flex: 1; min-width: 140px; }
+
 .btn-primary {
-  margin-top: 16px;
   padding: 10px 22px;
   background: var(--text);
   color: #fff;
@@ -153,7 +186,7 @@ input::placeholder { color: #B8B3AB; }
 .btn-primary:hover { opacity: .85; }
 
 /* ---- FILTER BAR ---- */
-.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .filter-pill {
   padding: 6px 16px;
   border-radius: var(--radius-pill);
@@ -421,16 +454,18 @@ input::placeholder { color: #B8B3AB; }
 .fade-in { animation: fi .2s ease; }
 @keyframes fi { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
+/* ---- SPINNER ---- */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--sage); border-radius: 50%; animation: spin .7s linear infinite; }
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 640px) {
   main { padding: 20px 16px 48px; }
-  .form-grid { grid-template-columns: 1fr; }
-  .form-grid .full { grid-column: 1; }
   .budget-summary { grid-template-columns: 1fr; }
   .budget-lists { grid-template-columns: 1fr; }
   .furniture-grid { grid-template-columns: 1fr; }
-  .header-inner { padding: 12px 16px; }
-  .logo-sub { display: none; }
+  .add-row { flex-direction: column; }
+  .add-row .qty-field { width: 100%; }
 }
 </style>
 </head>
@@ -441,12 +476,12 @@ input::placeholder { color: #B8B3AB; }
   <div class="header-inner">
     <div class="logo">
       <span class="logo-icon">🏡</span>
-      <div>
+      <div style="min-width:0">
         <div class="logo-title"><span class="logo-full">Our Home — David &amp; Yesy</span><span class="logo-short">Our Home</span></div>
         <div class="logo-sub">16/101 Alma Road, St Kilda East VIC 3183</div>
       </div>
     </div>
-    <div id="sync-status" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
+    <div id="sync-status" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0">
       <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#D1C9BF;display:inline-block"></span>
       <span id="sync-label">Connecting…</span>
     </div>
@@ -459,37 +494,53 @@ input::placeholder { color: #B8B3AB; }
 
 <main>
 
-  <!-- ===== FURNITURE TAB ===== -->
+  <!-- ===== SHOPPING TAB ===== -->
   <div id="furniture-tab">
 
+    <!-- ADD FORM -->
     <div class="card form-card">
       <p class="section-title">Add Item</p>
-      <div class="form-grid">
-        <input id="f-name"  type="text"   placeholder="Item name (e.g. BILLY Bookcase)">
-        <input id="f-store" type="text"   placeholder="Store / Brand (e.g. IKEA)">
-        <input id="f-url"   type="text"   placeholder="Product URL" class="full">
-        <input id="f-image" type="text"   placeholder="Thumbnail image URL" class="full">
-        <input id="f-price" type="number" placeholder="Price ($)" min="0" step="0.01">
-        <div style="display:flex;gap:10px">
-          <input id="f-qty"  type="number" placeholder="Qty" value="1" min="1" style="width:90px;flex-shrink:0">
-          <input id="f-note" type="text"   placeholder="Note (optional)" style="flex:1">
-        </div>
-        <div class="full">
-          <p class="person-label">Who's buying this?</p>
-          <div class="person-select">
-            <button type="button" class="person-opt sel-david" id="fp-david" onclick="selectFPerson('david')">👨 David</button>
-            <button type="button" class="person-opt"           id="fp-yesy"  onclick="selectFPerson('yesy')">👩 Yesy</button>
-            <button type="button" class="person-opt"           id="fp-split" onclick="selectFPerson('split')">🤝 Split 50/50</button>
-          </div>
+
+      <!-- URL input -->
+      <div class="url-row">
+        <input id="f-url" type="url" placeholder="Paste product URL (e.g. ikea.com/au/…)">
+        <button class="btn-fetch" id="btn-fetch" onclick="fetchProduct()">
+          <span id="fetch-icon">🔍</span> Fetch
+        </button>
+      </div>
+      <div class="fetch-status" id="fetch-status"></div>
+
+      <!-- Preview -->
+      <div class="item-preview" id="item-preview">
+        <img class="preview-img" id="preview-img" src="" alt="">
+        <div>
+          <div class="preview-name" id="preview-name"></div>
+          <div class="preview-store" id="preview-store"></div>
         </div>
       </div>
+
+      <!-- Name override + qty -->
+      <div class="add-row" style="margin-bottom:12px">
+        <input id="f-name" type="text" placeholder="Item name (auto-filled or type manually)" class="name-override">
+        <input id="f-qty" type="number" placeholder="Qty" value="1" min="1" class="qty-field">
+      </div>
+
+      <!-- Person -->
+      <p class="person-label">Who's buying this?</p>
+      <div class="person-select" style="margin-bottom:16px">
+        <button type="button" class="person-opt sel-david" id="fo-david" onclick="selectFPerson('david')">👨 David</button>
+        <button type="button" class="person-opt"           id="fo-yesy"  onclick="selectFPerson('yesy')">👩 Yesy</button>
+        <button type="button" class="person-opt"           id="fo-split" onclick="selectFPerson('split')">🤝 Split 50/50</button>
+      </div>
+
       <button class="btn-primary" onclick="addFurniture()">+ Add to List</button>
     </div>
 
     <div id="f-summary" class="summary-strip" style="display:none"></div>
 
-    <div id="f-filters" style="display:none">
-      <div class="filter-bar" style="margin-bottom:8px">
+    <!-- FILTERS -->
+    <div id="f-filters" style="display:none;margin-bottom:20px">
+      <div class="filter-bar">
         <button class="filter-pill active" id="ff-all"       onclick="setFFilter('all')">All</button>
         <button class="filter-pill"        id="ff-pending"   onclick="setFFilter('pending')">Pending</button>
         <button class="filter-pill"        id="ff-purchased" onclick="setFFilter('purchased')">Purchased</button>
@@ -506,17 +557,17 @@ input::placeholder { color: #B8B3AB; }
     <div id="furniture-grid" class="furniture-grid"></div>
     <div id="furniture-empty" class="empty-state">
       <div class="empty-icon">🛋️</div>
-      <p>Your shopping list is empty.<br>Add your first item above!</p>
+      <p>Your shopping list is empty.<br>Paste a product URL above to get started!</p>
     </div>
 
     <!-- WISHLIST -->
     <div style="margin-top:32px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">💭 Wishlist — Items to Consider</div>
       <div class="card" style="padding:20px;margin-bottom:16px">
-        <div style="display:flex;gap:10px">
-          <input id="w-name" type="text" placeholder="Item idea (e.g. Floor lamp for living room)" style="flex:1">
-          <input id="w-note" type="text" placeholder="Note (optional)" style="flex:1">
-          <button class="btn-primary" style="margin-top:0;white-space:nowrap" onclick="addWishlist()">+ Add</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input id="w-name" type="text" placeholder="Item idea (e.g. Floor lamp for living room)" style="flex:1;min-width:180px">
+          <input id="w-note" type="text" placeholder="Note (optional)" style="flex:1;min-width:140px">
+          <button class="btn-primary" style="white-space:nowrap" onclick="addWishlist()">+ Add</button>
         </div>
       </div>
       <div id="wishlist-list"></div>
@@ -546,7 +597,7 @@ input::placeholder { color: #B8B3AB; }
         <label><input type="radio" name="b-type" value="income" checked onchange="updateBudgetForm()"> Income</label>
         <label><input type="radio" name="b-type" value="expense" onchange="updateBudgetForm()"> Expense</label>
       </div>
-      <div class="form-grid">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <input id="b-desc"   type="text"   placeholder="Description (e.g. Salary, Rent)">
         <select id="b-category"></select>
         <input id="b-amount" type="number" placeholder="Amount ($)" min="0" step="0.01">
@@ -556,7 +607,7 @@ input::placeholder { color: #B8B3AB; }
           <option value="monthly" selected>Monthly</option>
           <option value="annual">Annual</option>
         </select>
-        <div class="full">
+        <div style="grid-column:1/-1">
           <p class="person-label" id="b-person-label">Who earns this?</p>
           <div class="person-select">
             <button type="button" class="person-opt sel-david" id="bp-david" onclick="selectPerson('david')">👨 David</button>
@@ -565,24 +616,18 @@ input::placeholder { color: #B8B3AB; }
           </div>
         </div>
       </div>
-      <button class="btn-primary" onclick="addBudget()">+ Add Entry</button>
+      <button class="btn-primary" style="margin-top:16px" onclick="addBudget()">+ Add Entry</button>
     </div>
 
     <div class="budget-lists">
       <div class="card list-card">
-        <div class="list-card-title">
-          <span class="dot" style="background:#16A34A"></span>
-          <span style="color:#16A34A">Income</span>
-        </div>
+        <div class="list-card-title"><span class="dot" style="background:#16A34A"></span><span style="color:#16A34A">Income</span></div>
         <div id="income-list"></div>
         <div id="income-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No income added yet</div>
         <div id="income-total" class="list-total" style="display:none"></div>
       </div>
       <div class="card list-card">
-        <div class="list-card-title">
-          <span class="dot" style="background:#DC2626"></span>
-          <span style="color:#DC2626">Expenses</span>
-        </div>
+        <div class="list-card-title"><span class="dot" style="background:#DC2626"></span><span style="color:#DC2626">Expenses</span></div>
         <div id="expense-list"></div>
         <div id="expense-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No expenses added yet</div>
         <div id="expense-total" class="list-total" style="display:none"></div>
@@ -592,22 +637,11 @@ input::placeholder { color: #B8B3AB; }
     <!-- Joint Account Log -->
     <div style="margin-top:28px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">🏦 Joint Account Contributions</div>
-
-      <!-- Add contribution form -->
       <div class="card" style="padding:20px;margin-bottom:16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div style="grid-column:1/-1">
-            <div class="modal-label">Description</div>
-            <input id="c-desc" type="text" placeholder="e.g. Rent payment, Groceries top-up">
-          </div>
-          <div>
-            <div class="modal-label">Amount ($)</div>
-            <input id="c-amount" type="number" placeholder="0" min="0" step="0.01">
-          </div>
-          <div>
-            <div class="modal-label">Date</div>
-            <input id="c-date" type="date">
-          </div>
+          <div style="grid-column:1/-1"><div class="modal-label">Description</div><input id="c-desc" type="text" placeholder="e.g. Rent payment, Groceries top-up"></div>
+          <div><div class="modal-label">Amount ($)</div><input id="c-amount" type="number" placeholder="0" min="0" step="0.01"></div>
+          <div><div class="modal-label">Date</div><input id="c-date" type="date"></div>
           <div style="grid-column:1/-1">
             <div class="modal-label">Paid by</div>
             <div class="person-select">
@@ -616,10 +650,8 @@ input::placeholder { color: #B8B3AB; }
             </div>
           </div>
         </div>
-        <button class="btn-primary" onclick="addContribution()">+ Log Contribution</button>
+        <button class="btn-primary" style="margin-top:16px" onclick="addContribution()">+ Log Contribution</button>
       </div>
-
-      <!-- Contributions list -->
       <div class="card" style="padding:20px">
         <div id="contrib-list"></div>
         <div id="contrib-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No contributions logged yet</div>
@@ -708,7 +740,11 @@ let fPersonFilter = 'all';
 let fBrandFilter = 'all';
 let selPerson = 'david';
 let selFPerson = 'david';
+let selCPerson = 'david';
 let _saving = false;
+
+// Current pending fetch data
+let pendingFetch = null;
 
 const save = () => {
   setSyncStatus('saving');
@@ -720,32 +756,33 @@ const save = () => {
 };
 
 const load = () => {
-  // Load from localStorage immediately while Firebase connects
   try {
     let d = localStorage.getItem('our-home-v3')
          || localStorage.getItem('our-home-v2')
          || localStorage.getItem('our-home-app');
     if (d) S = JSON.parse(d);
   } catch(e) {}
+  if (!S.wishlist) S.wishlist = [];
 };
 
 function initFirebase() {
-  // Real-time listener — updates both devices instantly
   dataRef.on('value', snapshot => {
     const data = snapshot.val();
     if (data && !_saving) {
-      S = { furniture: data.furniture || [], budget: data.budget || [], contributions: data.contributions || [], wishlist: data.wishlist || [] };
+      S = {
+        furniture:     data.furniture     || [],
+        budget:        data.budget        || [],
+        contributions: data.contributions || [],
+        wishlist:      data.wishlist      || []
+      };
       localStorage.setItem('our-home-v3', JSON.stringify(S));
-      renderFurniture();
-      renderBudget();
-      renderContributions();
-      renderWishlist();
+      renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
     }
     setSyncStatus('live');
   }, () => setSyncStatus('error'));
 }
 
-const $  = id => document.getElementById(id);
+const $   = id => document.getElementById(id);
 const fmt = n  => Number(n).toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0});
 
 // ===== TABS =====
@@ -756,30 +793,94 @@ function switchTab(tab) {
   $('tab-budget').className    = 'tab-btn' + (tab==='budget'    ? ' active' : '');
 }
 
+// ===== URL FETCH =====
+async function fetchProduct() {
+  const url = $('f-url').value.trim();
+  if (!url) { $('f-url').focus(); return; }
+
+  const btn = $('btn-fetch');
+  const statusEl = $('fetch-status');
+  const preview = $('item-preview');
+
+  btn.disabled = true;
+  $('fetch-icon').outerHTML = '<span id="fetch-icon" class="spinner"></span>';
+  statusEl.innerHTML = 'Fetching product info…';
+  preview.classList.remove('show');
+
+  try {
+    const apiUrl = 'https://api.microlink.io/?url=' + encodeURIComponent(url);
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+
+    if (json.status === 'success' && json.data) {
+      const d = json.data;
+      const name  = d.title  || '';
+      const image = d.image  ? d.image.url  : (d.screenshot ? d.screenshot.url : '');
+      const store = d.publisher || extractDomain(url);
+
+      pendingFetch = { url, imageUrl: image, store, name };
+
+      $('f-name').value = name;
+      $('preview-name').textContent  = name  || 'Untitled';
+      $('preview-store').textContent = store || '';
+      if (image) {
+        $('preview-img').src = image;
+        $('preview-img').style.display = '';
+      } else {
+        $('preview-img').style.display = 'none';
+      }
+      preview.classList.add('show');
+      statusEl.innerHTML = '<span style="color:var(--sage)">✓ Got it! Edit the name if needed, then click Add.</span>';
+    } else {
+      statusEl.innerHTML = '<span style="color:var(--muted)">Couldn\'t auto-fill — type the name manually below.</span>';
+      pendingFetch = { url, imageUrl: '', store: extractDomain(url), name: '' };
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:var(--muted)">Couldn\'t reach the page — type the name manually below.</span>';
+    pendingFetch = { url, imageUrl: '', store: extractDomain(url), name: '' };
+  }
+
+  btn.disabled = false;
+  $('fetch-icon').outerHTML = '<span id="fetch-icon">🔍</span>';
+}
+
+function extractDomain(url) {
+  try {
+    const h = new URL(url).hostname.replace('www.','');
+    return h.split('.')[0].charAt(0).toUpperCase() + h.split('.')[0].slice(1);
+  } catch(e) { return ''; }
+}
+
 // ===== FURNITURE =====
 function selectFPerson(p) {
   selFPerson = p;
   ['david','yesy','split'].forEach(x => {
-    $('fp-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
+    $('fo-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
   });
 }
 
 function addFurniture() {
-  const name = $('f-name').value.trim();
-  if (!name) { $('f-name').focus(); return; }
+  const name = ($('f-name').value.trim()) || (pendingFetch && pendingFetch.name) || '';
+  if (!name) { $('f-name').focus(); $('f-name').placeholder='Please enter an item name'; return; }
+
   S.furniture.unshift({
-    id: Date.now(), name,
-    store:    $('f-store').value.trim(),
-    url:      $('f-url').value.trim(),
-    imageUrl: $('f-image').value.trim(),
-    price:    parseFloat($('f-price').value) || 0,
-    qty:      parseInt($('f-qty').value)     || 1,
-    note:     $('f-note').value.trim(),
-    person:   selFPerson,
+    id:        Date.now(),
+    name,
+    store:     pendingFetch ? pendingFetch.store    : '',
+    url:       pendingFetch ? pendingFetch.url      : $('f-url').value.trim(),
+    imageUrl:  pendingFetch ? pendingFetch.imageUrl : '',
+    price:     0,
+    qty:       parseInt($('f-qty').value) || 1,
+    note:      '',
+    person:    selFPerson,
     purchased: false
   });
-  ['f-name','f-store','f-url','f-image','f-price','f-note'].forEach(id => $(id).value='');
-  $('f-qty').value = 1;
+
+  $('f-url').value = ''; $('f-name').value = ''; $('f-qty').value = 1;
+  $('fetch-status').innerHTML = '';
+  $('item-preview').classList.remove('show');
+  pendingFetch = null;
+
   save(); renderFurniture();
 }
 
@@ -789,12 +890,12 @@ function openEditFurniture(id) {
   const i = S.furniture.find(x=>x.id===id); if(!i) return;
   $('ef-id').value    = id;
   $('ef-name').value  = i.name;
-  $('ef-store').value = i.store  || '';
-  $('ef-price').value = i.price  || '';
-  $('ef-qty').value   = i.qty    || 1;
-  $('ef-url').value   = i.url    || '';
+  $('ef-store').value = i.store    || '';
+  $('ef-price').value = i.price    || '';
+  $('ef-qty').value   = i.qty      || 1;
+  $('ef-url').value   = i.url      || '';
   $('ef-image').value = i.imageUrl || '';
-  $('ef-note').value  = i.note   || '';
+  $('ef-note').value  = i.note     || '';
   $('f-modal').classList.add('open');
 }
 function saveEditFurniture() {
@@ -812,31 +913,20 @@ function saveEditFurniture() {
 function closeModal(id) { $(id).classList.remove('open'); }
 function togglePurchased(id) { const i=S.furniture.find(x=>x.id===id); if(i) i.purchased=!i.purchased; save(); renderFurniture(); }
 function updQty(id, d) { const i=S.furniture.find(x=>x.id===id); if(i) i.qty=Math.max(1,i.qty+d); save(); renderFurniture(); }
-function setFPerson(id, p) {
-  const i=S.furniture.find(x=>x.id===id); if(!i) return;
-  i.person = p; save(); renderFurniture();
-}
+function setFPerson(id, p) { const i=S.furniture.find(x=>x.id===id); if(!i) return; i.person=p; save(); renderFurniture(); }
 
+// ===== FILTERS =====
 function setFFilter(f) {
   fFilter = f;
-  ['all','pending','purchased'].forEach(x => {
-    $('ff-'+x).className = 'filter-pill' + (x===f ? ' active' : '');
-  });
+  ['all','pending','purchased'].forEach(x => { $('ff-'+x).className = 'filter-pill' + (x===f?' active':''); });
   renderFurniture();
 }
-
 function setFPersonFilter(p) {
   fPersonFilter = p;
-  ['all','david','yesy','split'].forEach(x => {
-    $('fpf-'+x).className = 'filter-pill' + (x===p ? ' active' : '');
-  });
+  ['all','david','yesy','split'].forEach(x => { $('fpf-'+x).className = 'filter-pill' + (x===p?' active':''); });
   renderFurniture();
 }
-
-function setFBrandFilter(b) {
-  fBrandFilter = b;
-  renderFurniture();
-}
+function setFBrandFilter(b) { fBrandFilter = b; renderFurniture(); }
 
 function renderFurniture() {
   const all = S.furniture;
@@ -856,22 +946,19 @@ function renderFurniture() {
   }
   empty.style.display='none'; filEl.style.display='';
 
-  // Brand filter bar — unique stores
+  // Brand filter bar
   const brands = [...new Set(all.map(i=>i.store).filter(Boolean))];
   if (brands.length > 0) {
     bBar.style.display='flex';
-    bBar.innerHTML = [`<button class="filter-pill ${fBrandFilter==='all'?'active':''}" onclick="setFBrandFilter('all')">🏪 All Brands</button>`,
+    bBar.innerHTML = [
+      `<button class="filter-pill ${fBrandFilter==='all'?'active':''}" onclick="setFBrandFilter('all')">🏪 All Brands</button>`,
       ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter('${b.toLowerCase().replace(/'/g,"&#39;")}')">${b}</button>`)
     ].join('');
-  } else {
-    bBar.style.display='none';
-  }
+  } else { bBar.style.display='none'; }
 
-  const totalV  = all.reduce((s,i)=>s+(i.price*i.qty),0);
-  const spentV  = all.filter(i=>i.purchased).reduce((s,i)=>s+(i.price*i.qty),0);
-  const doneC   = all.filter(i=>i.purchased).length;
-
-  // Per-person spend (split items count 50/50)
+  // Summary chips
+  const totalV = all.reduce((s,i)=>s+(i.price*i.qty),0);
+  const doneC  = all.filter(i=>i.purchased).length;
   const personSpend = (p) => all.reduce((s,i) => {
     const v = i.price * i.qty;
     if (i.person === p) return s + v;
@@ -890,7 +977,7 @@ function renderFurniture() {
   `;
 
   if (shown.length===0) {
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--muted);font-size:14px">No items in this filter</div>`; return;
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--muted);font-size:14px">No items match this filter</div>`; return;
   }
 
   grid.innerHTML = shown.map(item=>`
@@ -906,7 +993,7 @@ function renderFurniture() {
         <div class="item-name">${item.name}</div>
         ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
         ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
-        ${item.price>0 ? `<div class="item-price" style="margin-top:6px">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
+        ${item.price>0 ? `<div class="item-price">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
         <div class="person-mini">
           <button class="pmini ${(item.person||'split')==='david'?'sel-david':''}" onclick="setFPerson(${item.id},'david')">👨 David</button>
           <button class="pmini ${(item.person||'split')==='yesy' ?'sel-yesy' :''}" onclick="setFPerson(${item.id},'yesy')">👩 Yesy</button>
@@ -919,9 +1006,7 @@ function renderFurniture() {
             <button class="qty-btn" onclick="updQty(${item.id},1)">+</button>
           </div>
           <div class="action-row">
-            <button class="btn-done ${item.purchased?'done':''}" onclick="togglePurchased(${item.id})">
-              ${item.purchased?'✓ Done':'Mark done'}
-            </button>
+            <button class="btn-done ${item.purchased?'done':''}" onclick="togglePurchased(${item.id})">${item.purchased?'✓ Done':'Mark done'}</button>
             <button class="btn-edit" onclick="openEditFurniture(${item.id})" title="Edit">
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
             </button>
@@ -949,9 +1034,7 @@ function updateBudgetForm() {
 
 function selectPerson(p) {
   selPerson = p;
-  ['david','yesy','split'].forEach(x => {
-    $('bp-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
-  });
+  ['david','yesy','split'].forEach(x => { $('bp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
 }
 
 function addBudget() {
@@ -962,10 +1045,7 @@ function addBudget() {
   save(); renderBudget();
 }
 function removeBudget(id) { S.budget=S.budget.filter(i=>i.id!==id); save(); renderBudget(); }
-function setBPerson(id, p) {
-  const i=S.budget.find(x=>x.id===id); if(!i) return;
-  i.person=p; save(); renderBudget();
-}
+function setBPerson(id, p) { const i=S.budget.find(x=>x.id===id); if(!i) return; i.person=p; save(); renderBudget(); }
 function openEditBudget(id) {
   const i=S.budget.find(x=>x.id===id); if(!i) return;
   $('eb-id').value     = id;
@@ -978,7 +1058,7 @@ function openEditBudget(id) {
 function saveEditBudget() {
   const id=parseInt($('eb-id').value);
   const i=S.budget.find(x=>x.id===id); if(!i) return;
-  i.description = $('eb-desc').value.trim()    || i.description;
+  i.description = $('eb-desc').value.trim()        || i.description;
   i.amount      = parseFloat($('eb-amount').value) || i.amount;
   i.category    = $('eb-category').value;
   i.frequency   = $('eb-frequency').value;
@@ -990,24 +1070,14 @@ function personShare(entry,p) {
   return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
 }
 
-function personTag(p, id, fn) {
-  const fn2 = fn || 'cyclePerson';
-  const click = id !== undefined ? `onclick="${fn2}(${id})" title="Tap to change"` : '';
-  const pencil = id !== undefined ? `<span class="tag-pencil">✏️</span>` : '';
-  if (p==='david') return `<span class="tag tag-david" ${click}>👨 David${pencil}</span>`;
-  if (p==='yesy')  return `<span class="tag tag-yesy"  ${click}>👩 Yesy${pencil}</span>`;
-  return `<span class="tag tag-split" ${click}>🤝 Split${pencil}</span>`;
-}
-
 function renderBudget() {
   const income  = S.budget.filter(i=>i.type==='income');
   const expense = S.budget.filter(i=>i.type==='expense');
-
   const d = { inc: income.reduce((s,i)=>s+personShare(i,'david'),0), exp: expense.reduce((s,i)=>s+personShare(i,'david'),0) };
   const y = { inc: income.reduce((s,i)=>s+personShare(i,'yesy'),0),  exp: expense.reduce((s,i)=>s+personShare(i,'yesy'),0) };
-  d.net = d.inc - d.exp; y.net = y.inc - y.exp;
+  d.net = d.inc-d.exp; y.net = y.inc-y.exp;
   const all = { inc: income.reduce((s,i)=>s+toMo(i.amount,i.frequency),0), exp: expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0) };
-  all.net = all.inc - all.exp;
+  all.net = all.inc-all.exp;
 
   function personCardHTML(cls, title, data) {
     const pct = data.inc>0 ? Math.min(100,(data.exp/data.inc)*100) : 0;
@@ -1031,8 +1101,7 @@ function renderBudget() {
     const total = items.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
     const amtCol = isIncome?'var(--green)':'var(--red)';
     if (items.length===0) { $(listId).innerHTML=''; $(emptyId).style.display=''; $(totalId).style.display='none'; return; }
-    $(emptyId).style.display='none';
-    $(totalId).style.display='flex';
+    $(emptyId).style.display='none'; $(totalId).style.display='flex';
     $(totalId).innerHTML=`<span>Monthly total</span><span>$${fmt(total)}</span>`;
     $(listId).innerHTML = items.map(i=>`
       <div class="budget-row fade-in">
@@ -1053,7 +1122,7 @@ function renderBudget() {
             <div class="budget-row-amount" style="color:${amtCol}">$${fmt(i.amount)}${freqLbl[i.frequency]}</div>
             ${i.frequency!=='monthly'?`<div class="budget-row-monthly">$${fmt(toMo(i.amount,i.frequency))}/mo</div>`:''}
           </div>
-          <button class="btn-edit" style="opacity:0" class="btn-remove-row" onclick="openEditBudget(${i.id})" title="Edit">
+          <button class="btn-edit" style="opacity:0" onclick="openEditBudget(${i.id})" title="Edit">
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
           </button>
           <button class="btn-remove-row" onclick="removeBudget(${i.id})" title="Delete">
@@ -1068,13 +1137,9 @@ function renderBudget() {
 }
 
 // ===== CONTRIBUTIONS =====
-let selCPerson = 'david';
-
 function selectCPerson(p) {
   selCPerson = p;
-  ['david','yesy'].forEach(x => {
-    $('cp-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
-  });
+  ['david','yesy'].forEach(x => { $('cp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
 }
 
 function addContribution() {
@@ -1082,51 +1147,36 @@ function addContribution() {
   const amount = parseFloat($('c-amount').value);
   const date   = $('c-date').value;
   if (!desc || !amount || !date) return;
-  S.contributions.unshift({ id: Date.now(), desc, amount, date, person: selCPerson });
+  S.contributions.unshift({ id:Date.now(), desc, amount, date, person:selCPerson });
   $('c-desc').value=''; $('c-amount').value='';
   save(); renderContributions();
 }
-
-function removeContribution(id) {
-  S.contributions = S.contributions.filter(i=>i.id!==id);
-  save(); renderContributions();
-}
+function removeContribution(id) { S.contributions=S.contributions.filter(i=>i.id!==id); save(); renderContributions(); }
 
 function renderContributions() {
-  const list  = $('contrib-list');
-  const empty = $('contrib-empty');
-  const total = $('contrib-total');
+  const list=_$('contrib-list'), empty=_$('contrib-empty'), total=_$('contrib-total');
+  function _$(id){return document.getElementById(id);}
   const items = S.contributions || [];
-
   if (items.length===0) { list.innerHTML=''; empty.style.display=''; total.style.display='none'; return; }
   empty.style.display='none';
-
   const davidTotal = items.filter(i=>i.person==='david').reduce((s,i)=>s+i.amount,0);
   const yesyTotal  = items.filter(i=>i.person==='yesy').reduce((s,i)=>s+i.amount,0);
   const grandTotal = items.reduce((s,i)=>s+i.amount,0);
-
   total.style.display='flex'; total.style.flexDirection='column'; total.style.gap='4px';
   total.innerHTML = `
     <div style="display:flex;justify-content:space-between"><span>Total contributed</span><span>$${fmt(grandTotal)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)">
-      <span>👨 David</span><span style="color:var(--david)">$${fmt(davidTotal)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)">
-      <span>👩 Yesy</span><span style="color:var(--yesy)">$${fmt(yesyTotal)}</span>
-    </div>`;
-
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)"><span>👨 David</span><span style="color:var(--david)">$${fmt(davidTotal)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)"><span>👩 Yesy</span><span style="color:var(--yesy)">$${fmt(yesyTotal)}</span></div>`;
   list.innerHTML = items.map(i => {
     const d = new Date(i.date);
-    const dateStr = d.toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+    const dateStr = d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
     const isD = i.person==='david';
     return `<div class="budget-row fade-in" style="align-items:flex-start">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
         <div style="width:36px;height:36px;border-radius:10px;background:${isD?'var(--david-bg)':'var(--yesy-bg)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isD?'👨':'👩'}</div>
         <div style="min-width:0">
           <div style="font-size:13px;font-weight:500;color:var(--text)">${i.desc}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">
-            <span style="font-weight:600;color:${isD?'var(--david)':'var(--yesy)'}">${isD?'David':'Yesy'}</span> added to joint account · ${dateStr}
-          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px"><span style="font-weight:600;color:${isD?'var(--david)':'var(--yesy)'}">${isD?'David':'Yesy'}</span> added to joint account · ${dateStr}</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-top:2px">
@@ -1143,37 +1193,28 @@ function renderContributions() {
 function addWishlist() {
   const name = $('w-name').value.trim();
   if (!name) { $('w-name').focus(); return; }
-  if (!S.wishlist) S.wishlist = [];
-  S.wishlist.unshift({ id: Date.now(), name, note: $('w-note').value.trim() });
+  S.wishlist.unshift({ id:Date.now(), name, note:$('w-note').value.trim() });
   $('w-name').value=''; $('w-note').value='';
   save(); renderWishlist();
 }
-
-function removeWishlist(id) {
-  S.wishlist = S.wishlist.filter(i=>i.id!==id);
-  save(); renderWishlist();
-}
-
+function removeWishlist(id) { S.wishlist=S.wishlist.filter(i=>i.id!==id); save(); renderWishlist(); }
 function promoteWishlist(id) {
-  const item = (S.wishlist||[]).find(i=>i.id===id);
-  if (!item) return;
-  // Pre-fill the add form and scroll up
-  $('f-name').value = item.name;
-  $('f-note').value = item.note || '';
+  const item=(S.wishlist||[]).find(i=>i.id===id); if(!item) return;
+  $('f-name').value=item.name; $('f-url').value='';
+  $('fetch-status').innerHTML='';
+  $('item-preview').classList.remove('show');
+  pendingFetch=null;
   switchTab('furniture');
-  $('f-name').scrollIntoView({ behavior:'smooth', block:'center' });
+  $('f-name').scrollIntoView({behavior:'smooth',block:'center'});
   $('f-name').focus();
-  // Remove from wishlist
   removeWishlist(id);
 }
-
 function renderWishlist() {
-  const items = S.wishlist || [];
-  const listEl  = $('wishlist-list');
-  const emptyEl = $('wishlist-empty');
+  const items=S.wishlist||[];
+  const listEl=$('wishlist-list'), emptyEl=$('wishlist-empty');
   if (items.length===0) { listEl.innerHTML=''; emptyEl.style.display=''; return; }
   emptyEl.style.display='none';
-  listEl.innerHTML = items.map(i=>`
+  listEl.innerHTML=items.map(i=>`
     <div class="card fade-in" style="padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
       <div style="font-size:20px">💭</div>
       <div style="flex:1;min-width:0">
@@ -1189,18 +1230,14 @@ function renderWishlist() {
 
 // ===== INIT =====
 load();
-if (!S.wishlist) S.wishlist = [];
 updateBudgetForm();
-renderFurniture();
-renderBudget();
-renderContributions();
-renderWishlist();
+renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
 initFirebase();
-// Set today's date as default for contribution form
 $('c-date').value = new Date().toISOString().split('T')[0];
-$('f-name').addEventListener('keydown',  e=>e.key==='Enter'&&addFurniture());
-$('b-amount').addEventListener('keydown',e=>e.key==='Enter'&&addBudget());
-$('w-name').addEventListener('keydown',  e=>e.key==='Enter'&&addWishlist());
+$('b-amount').addEventListener('keydown', e=>e.key==='Enter'&&addBudget());
+$('f-url').addEventListener('keydown',    e=>e.key==='Enter'&&fetchProduct());
+$('f-name').addEventListener('keydown',   e=>e.key==='Enter'&&addFurniture());
+$('w-name').addEventListener('keydown',   e=>e.key==='Enter'&&addWishlist());
 </script>
 </body>
 </html>
