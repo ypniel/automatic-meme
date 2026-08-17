@@ -783,58 +783,13 @@ async function fetchProduct() {
   let name = '', image = '', store = extractDomain(url), price = 0;
 
   try {
-    // Fetch page HTML via CORS proxy and extract OG tags directly
-    const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-    const res   = await fetch(proxy);
-    const json  = await res.json();
-    const html  = json.contents || '';
-
-    const getMeta = (prop, attr) => {
-      const re = new RegExp(`<meta[^>]*(?:property|name)=["']${prop}["'][^>]*content=["']([^"']+)["']`, 'i');
-      const re2= new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']${prop}["']`, 'i');
-      const m  = html.match(re) || html.match(re2);
-      return m ? m[1].trim() : '';
-    };
-
-    name  = getMeta('og:title') || getMeta('twitter:title') || (html.match(/<title[^>]*>([^<]+)<\/title>/i)||[])[1] || '';
-    image = getMeta('og:image') || getMeta('twitter:image') || '';
-    // Clean up common suffixes in page titles (e.g. " | IKEA Australia")
-    name = name.split(/\s*[|–—]\s*/)[0].trim();
-
-    // Extract price from JSON-LD structured data
-    const ldMatches = html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi);
-    for (const m of ldMatches) {
-      try {
-        const obj = JSON.parse(m[1]);
-        const objs = Array.isArray(obj) ? obj : [obj];
-        for (const o of objs) {
-          const offer = o.offers || (o['@type']==='Offer' ? o : null);
-          const p = offer ? (Array.isArray(offer) ? offer[0].price : offer.price) : null;
-          if (p && !price) price = parseFloat(String(p).replace(/[^0-9.]/g,''));
-        }
-      } catch(e) {}
-    }
-    // Fallback: og price meta
-    if (!price) {
-      const pm = getMeta('product:price:amount') || getMeta('og:price:amount');
-      if (pm) price = parseFloat(pm) || 0;
-    }
-
-  } catch(e) { /* silent */ }
-
-  // If no image yet, try Microlink as fallback (just for the image)
-  if (!image) {
-    try {
-      const mRes  = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(url));
-      const mJson = await mRes.json();
-      const d = mJson.status === 'success' && mJson.data ? mJson.data : null;
-      if (d) {
-        image = (d.image && d.image.url) || (d.logo && d.logo.url) || '';
-        if (!name && d.title) name = d.title.split(/\s*[|–—]\s*/)[0].trim();
-        if (d.publisher) store = d.publisher;
-      }
-    } catch(e) { /* silent */ }
-  }
+    const res  = await fetch('/api/fetch-meta?url=' + encodeURIComponent(url));
+    const data = await res.json();
+    name  = data.title || '';
+    image = data.image || '';
+    if (data.store) store = data.store;
+    price = data.price || 0;
+  } catch(e) { /* silent — user can type name manually */ }
 
   _fetchData = { url, imageUrl: image, store, name, price };
   if (name) $('f-name').value = name;
