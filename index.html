@@ -809,8 +809,18 @@ async function fetchProduct() {
     price = data.price || 0;
   } catch(e) { /* silent — user can type name manually */ }
 
+  // Use best available name — URL title, or store name, or URL slug as last resort
+  if (!name && store) name = store + ' item';
+  if (!name) {
+    try {
+      const parts = new URL(url).pathname.split('/').filter(Boolean);
+      const slug = parts[parts.length - 1] || '';
+      name = slug.replace(/-[0-9]{5,}$/, '').replace(/-/g, ' ')
+                 .replace(/\b\w/g, c => c.toUpperCase()).trim();
+    } catch(e) {}
+  }
   _fetchData = { url, imageUrl: image, store, name, price };
-  if (name) $('f-name').value = name;
+  $('f-name').value = name;
   $('preview-name').textContent  = name  || store || 'Item';
   $('preview-store').textContent = [store, price ? '$' + price.toFixed(2) : ''].filter(Boolean).join(' · ');
   if (image) {
@@ -839,7 +849,9 @@ function selectFPerson(p) {
 }
 
 function addFurniture() {
-  const name = $('f-name').value.trim() || (_fetchData && _fetchData.name) || '';
+  let name = $('f-name').value.trim() || (_fetchData && _fetchData.name) || '';
+  // If URL fetched but name still empty, fall back to store name
+  if (!name && _fetchData) name = (_fetchData.store ? _fetchData.store + ' item' : 'Item');
   if (!name) { $('f-name').focus(); return; }
 
   S.furniture.unshift({
