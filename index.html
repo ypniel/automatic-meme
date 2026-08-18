@@ -1,1194 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Our Home 🏡</title>
-<link rel="icon" href="icon.png">
-<meta name="theme-color" content="#F7F4EF">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Our Home">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  const { url } = req.query;
+  if (!url) return res.status(400).json({ error: 'No URL' });
 
-:root {
-  --bg: #F7F4EF;
-  --surface: #FFFFFF;
-  --border: #E8E3DB;
-  --text: #1A1714;
-  --muted: #8A8278;
-  --sage: #4A7C59;
-  --sage-light: #EBF2EC;
-  --sage-dark: #3A6347;
-  --david: #2563EB;
-  --david-bg: #EFF6FF;
-  --david-border: #BFDBFE;
-  --yesy: #DB2777;
-  --yesy-bg: #FDF2F8;
-  --yesy-border: #FBCFE8;
-  --red: #DC2626;
-  --red-bg: #FEF2F2;
-  --green: #16A34A;
-  --green-bg: #F0FDF4;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow: 0 4px 16px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --radius-pill: 999px;
-}
+  // Try with a real browser user agent for better compatibility
+  const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
-body {
-  font-family: 'DM Sans', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ---- HEADER ---- */
-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: var(--shadow-sm);
-}
-.header-inner {
-  max-width: 960px; margin: 0 auto;
-  padding: 14px 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-}
-.logo { display: flex; align-items: center; gap: 10px; min-width: 0; flex-shrink: 1; }
-.logo-icon { font-size: 22px; font-family: 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; flex-shrink: 0; }
-.logo-title { font-size: 17px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.logo-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.logo-short { display: none; }
-
-@media (max-width: 540px) {
-  .header-inner { padding: 10px 14px; gap: 6px; }
-  .logo-title { font-size: 14px; }
-  .logo-sub { display: none; }
-  .logo-icon { font-size: 20px; }
-  .logo-full { display: none; }
-  .logo-short { display: inline; }
-  #sync-label { display: none; }
-  .tab-btn { padding: 7px 12px; font-size: 12px; }
-  .tab-group { padding: 3px; gap: 2px; }
-}
-
-.tab-group {
-  display: flex; gap: 4px;
-  background: var(--bg);
-  padding: 4px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.tab-btn {
-  padding: 8px 20px;
-  border-radius: 12px;
-  border: none;
-  font-family: inherit;
-  font-size: 14px; font-weight: 500;
-  cursor: pointer;
-  transition: all .2s;
-  color: var(--muted);
-  background: transparent;
-}
-.tab-btn.active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
-}
-
-/* ---- MAIN ---- */
-main { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
-
-/* ---- CARD ---- */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-}
-
-/* ---- SECTION TITLE ---- */
-.section-title {
-  font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .08em;
-  color: var(--muted); margin-bottom: 16px;
-}
-
-/* ---- FORM ---- */
-.form-card { padding: 24px; margin-bottom: 24px; }
-input[type=text], input[type=number], input[type=url], input[type=date], select {
-  width: 100%; padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
-  transition: border-color .15s;
-  outline: none;
-  -webkit-appearance: none;
-}
-input:focus, select:focus { border-color: var(--sage); background: #fff; }
-input::placeholder { color: #B8B3AB; }
-
-/* qty + person row */
-.add-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-.add-row .qty-field { width: 90px; flex-shrink: 0; }
-.add-row .name-field { flex: 1; min-width: 140px; }
-
-.btn-primary {
-  padding: 10px 22px;
-  background: var(--text);
-  color: #fff;
-  border: none; border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14px; font-weight: 500;
-  cursor: pointer; transition: opacity .15s;
-}
-.btn-primary:hover { opacity: .85; }
-
-/* ---- FILTER BAR ---- */
-.filter-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-.filter-pill {
-  padding: 6px 16px;
-  border-radius: var(--radius-pill);
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  color: var(--muted); cursor: pointer; transition: all .15s;
-}
-.filter-pill.active {
-  background: var(--text); border-color: var(--text); color: #fff;
-}
-
-/* ---- SUMMARY STRIP ---- */
-.summary-strip {
-  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
-}
-.summary-chip {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 16px;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: var(--shadow-sm);
-}
-.summary-chip .chip-icon { font-size: 18px; }
-.summary-chip .chip-label { font-size: 11px; color: var(--muted); }
-.summary-chip .chip-val { font-size: 14px; font-weight: 600; color: var(--text); }
-
-/* ---- FURNITURE GRID ---- */
-.furniture-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-}
-.item-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform .2s, box-shadow .2s;
-}
-.item-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.item-card.purchased { opacity: .55; }
-.item-card.purchased .item-name { text-decoration: line-through; }
-
-.item-thumb {
-  height: 190px;
-  background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden; position: relative;
-}
-.item-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.item-thumb .thumb-placeholder { font-size: 52px; }
-.thumb-badge {
-  position: absolute; top: 10px; right: 10px;
-  background: var(--sage); color: #fff;
-  font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: var(--radius-pill);
-}
-.thumb-link {
-  position: absolute; top: 10px; left: 10px;
-  background: rgba(255,255,255,.92);
-  border-radius: 50%; width: 30px; height: 30px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text); text-decoration: none;
-  opacity: 0; transition: opacity .15s;
-  box-shadow: var(--shadow-sm);
-}
-.item-card:hover .thumb-link { opacity: 1; }
-
-.item-body { padding: 14px 16px 16px; }
-.item-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.item-store { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
-.item-note { font-size: 12px; color: var(--muted); font-style: italic; }
-.item-price { font-size: 15px; font-weight: 700; color: var(--text); margin-top: 8px; }
-.item-price span { font-size: 12px; font-weight: 400; color: var(--muted); }
-
-.item-actions {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 12px;
-}
-.qty-control { display: flex; align-items: center; gap: 8px; }
-.qty-btn {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 1.5px solid var(--border);
-  background: var(--bg);
-  font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted); transition: all .15s;
-}
-.qty-btn:hover { border-color: var(--text); color: var(--text); }
-.qty-val { font-size: 14px; font-weight: 600; width: 20px; text-align: center; }
-
-.action-row { display: flex; align-items: center; gap: 8px; }
-.btn-done {
-  padding: 6px 14px; border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--bg);
-  font-family: inherit; font-size: 12px; font-weight: 500;
-  color: var(--muted); cursor: pointer; transition: all .15s;
-}
-.btn-done.done { background: var(--sage-light); border-color: var(--sage); color: var(--sage-dark); }
-.btn-delete {
-  background: none; border: none; cursor: pointer;
-  color: #D1C9BF; transition: color .15s; padding: 4px;
-}
-.btn-delete:hover { color: var(--red); }
-
-/* ---- EMPTY STATE ---- */
-.empty-state { text-align: center; padding: 80px 0; color: var(--muted); }
-.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; line-height: 1.6; }
-
-/* ---- BUDGET SUMMARY CARDS ---- */
-.budget-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
-.person-card {
-  border-radius: var(--radius); padding: 20px;
-  border: 1.5px solid;
-}
-.person-card.david { background: var(--david-bg); border-color: var(--david-border); }
-.person-card.yesy  { background: var(--yesy-bg);  border-color: var(--yesy-border); }
-.person-card.combined { background: var(--surface); border-color: var(--border); }
-
-.person-card-title { font-size: 12px; font-weight: 600; margin-bottom: 14px; }
-.person-card.david .person-card-title { color: var(--david); }
-.person-card.yesy  .person-card-title { color: var(--yesy); }
-.person-card.combined .person-card-title { color: var(--muted); }
-
-.person-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 6px; }
-.person-row .label { color: var(--muted); }
-.person-row .val-green { color: var(--green); font-weight: 600; }
-.person-row .val-red   { color: var(--red);   font-weight: 600; }
-.person-divider { height: 1px; background: rgba(0,0,0,.07); margin: 10px 0; }
-.person-net { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; }
-
-.budget-bar { margin-top: 10px; }
-.budget-bar-track { height: 4px; border-radius: 99px; background: rgba(0,0,0,.08); overflow: hidden; }
-.budget-bar-fill  { height: 100%; border-radius: 99px; transition: width .4s; }
-.budget-bar-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
-/* ---- PERSON SELECTOR ---- */
-.person-select { display: flex; gap: 8px; }
-.person-opt {
-  flex: 1; padding: 9px 0;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--bg);
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  color: var(--muted); cursor: pointer; transition: all .15s;
-  text-align: center;
-}
-.person-opt.sel-david { border-color: var(--david); background: var(--david-bg); color: var(--david); }
-.person-opt.sel-yesy  { border-color: var(--yesy);  background: var(--yesy-bg);  color: var(--yesy); }
-.person-opt.sel-split { border-color: var(--sage);  background: var(--sage-light); color: var(--sage-dark); }
-
-/* ---- BUDGET LISTS ---- */
-.budget-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.list-card { padding: 20px; }
-.list-card-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.list-card-title .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-
-.budget-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--bg);
-}
-.budget-row:last-child { border-bottom: none; }
-.budget-row-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.budget-row-icon { font-size: 18px; flex-shrink: 0; }
-.budget-row-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.budget-row-meta { font-size: 11px; color: var(--muted); margin-top: 1px; display: flex; align-items: center; gap: 6px; }
-.budget-row-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.budget-row-amount { font-size: 13px; font-weight: 700; text-align: right; }
-.budget-row-monthly { font-size: 11px; color: var(--muted); text-align: right; }
-
-.tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px; border-radius: var(--radius-pill);
-  font-size: 11px; font-weight: 600;
-}
-.tag-david { background: var(--david-bg); color: var(--david); }
-.tag-yesy  { background: var(--yesy-bg);  color: var(--yesy); }
-.tag-split { background: var(--sage-light); color: var(--sage-dark); }
-
-/* ---- PERSON MINI BUTTONS (on cards) ---- */
-.person-mini { display: flex; gap: 5px; margin-top: 8px; }
-.pmini {
-  flex: 1; padding: 5px 0;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: var(--bg);
-  font-family: inherit; font-size: 11px; font-weight: 500;
-  color: var(--muted); cursor: pointer;
-  text-align: center; transition: all .15s;
-}
-.pmini.sel-david { border-color: var(--david); background: var(--david-bg); color: var(--david); }
-.pmini.sel-yesy  { border-color: var(--yesy);  background: var(--yesy-bg);  color: var(--yesy); }
-.pmini.sel-split { border-color: var(--sage);  background: var(--sage-light); color: var(--sage-dark); }
-
-.list-total {
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-size: 13px; font-weight: 600; color: var(--text);
-  display: flex; justify-content: space-between;
-}
-
-.btn-remove-row {
-  background: none; border: none; cursor: pointer;
-  color: #D1C9BF; padding: 2px; transition: color .15s;
-  opacity: 0;
-}
-.budget-row:hover .btn-remove-row,
-.budget-row:hover .btn-edit { opacity: 1; }
-.btn-remove-row:hover { color: var(--red); }
-
-/* ---- TYPE RADIO ---- */
-.type-toggle { display: flex; gap: 16px; margin-bottom: 16px; }
-.type-toggle label {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 14px; font-weight: 500; cursor: pointer;
-}
-.type-toggle input { accent-color: var(--sage); }
-
-/* ---- PERSON LABEL ---- */
-.person-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-
-/* ---- MODAL ---- */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.45); z-index: 200;
-  align-items: center; justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.open { display: flex; }
-.modal-box {
-  background: var(--surface); border-radius: var(--radius);
-  padding: 24px; width: 100%; max-width: 480px;
-  box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
-}
-.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-.btn-cancel {
-  flex: 1; padding: 10px;
-  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--bg); font-family: inherit; font-size: 14px;
-  color: var(--muted); cursor: pointer;
-}
-.btn-save {
-  flex: 2; padding: 10px;
-  background: var(--text); color: #fff;
-  border: none; border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
-}
-.btn-edit {
-  background: none; border: none; cursor: pointer;
-  color: #D1C9BF; transition: color .15s; padding: 4px;
-}
-.btn-edit:hover { color: var(--sage); }
-.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-grid .full { grid-column: 1 / -1; }
-.modal-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
-
-/* ---- ANIMATIONS ---- */
-.fade-in { animation: fi .2s ease; }
-@keyframes fi { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-/* ---- SPINNER ---- */
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--sage); border-radius: 50%; animation: spin .7s linear infinite; }
-
-/* ---- RESPONSIVE ---- */
-@media (max-width: 640px) {
-  main { padding: 20px 16px 48px; }
-  .budget-summary { grid-template-columns: 1fr; }
-  .budget-lists { grid-template-columns: 1fr; }
-  .furniture-grid { grid-template-columns: 1fr; }
-  .add-row { flex-direction: column; }
-  .add-row .qty-field { width: 100%; }
-}
-</style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <div class="logo">
-      <span class="logo-icon">🏡</span>
-      <div style="min-width:0">
-        <div class="logo-title"><span class="logo-full">Our Home — David &amp; Yesy</span><span class="logo-short">Our Home</span></div>
-        <div class="logo-sub">16/101 Alma Road, St Kilda East VIC 3183</div>
-      </div>
-    </div>
-    <div id="sync-status" style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0">
-      <span id="sync-dot" style="width:7px;height:7px;border-radius:50%;background:#D1C9BF;display:inline-block"></span>
-      <span id="sync-label">Connecting…</span>
-    </div>
-    <div class="tab-group">
-      <button class="tab-btn active" id="tab-furniture" onclick="switchTab('furniture')">🛋️ Shopping</button>
-      <button class="tab-btn" id="tab-budget" onclick="switchTab('budget')">💰 Budget</button>
-    </div>
-  </div>
-</header>
-
-<main>
-
-  <!-- ===== SHOPPING TAB ===== -->
-  <div id="furniture-tab">
-
-    <!-- ADD FORM -->
-    <div class="card form-card">
-      <p class="section-title">Add Item</p>
-
-      <!-- URL + fetch -->
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="f-url" type="url" placeholder="Paste product URL — name &amp; image auto-filled" style="flex:1">
-        <button id="btn-fetch" onclick="fetchProduct()" style="padding:10px 16px;background:var(--sage);color:#fff;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px">
-          <span id="fetch-icon">🔍</span><span id="fetch-label">Fetch</span>
-        </button>
-      </div>
-
-      <!-- Preview (shown after fetch) -->
-      <div id="item-preview" style="display:none;gap:12px;align-items:center;background:var(--bg);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px">
-        <img id="preview-img" src="" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--border);flex-shrink:0">
-        <div><div id="preview-name" style="font-size:14px;font-weight:600"></div><div id="preview-store" style="font-size:12px;color:var(--muted);margin-top:2px"></div></div>
-      </div>
-
-      <!-- Name override + qty -->
-      <div class="add-row" style="margin-bottom:12px">
-        <input id="f-name" type="text" placeholder="Item name (edit if needed)" class="name-field">
-        <input id="f-qty"  type="number" placeholder="Qty" value="1" min="1" class="qty-field">
-      </div>
-
-      <!-- Person -->
-      <p class="person-label">Who's buying this?</p>
-      <div class="person-select" style="margin-bottom:16px">
-        <button type="button" class="person-opt sel-david" id="fo-david" onclick="selectFPerson('david')">👨 David</button>
-        <button type="button" class="person-opt"           id="fo-yesy"  onclick="selectFPerson('yesy')">👩 Yesy</button>
-        <button type="button" class="person-opt"           id="fo-split" onclick="selectFPerson('split')">🤝 Split 50/50</button>
-      </div>
-
-      <button class="btn-primary" onclick="addFurniture()">+ Add to List</button>
-    </div>
-
-    <div id="f-summary" class="summary-strip" style="display:none"></div>
-
-    <!-- FILTERS -->
-    <div id="f-filters" style="display:none;margin-bottom:20px">
-      <div class="filter-bar">
-        <button class="filter-pill active" id="ff-all"       onclick="setFFilter('all')">All</button>
-        <button class="filter-pill"        id="ff-pending"   onclick="setFFilter('pending')">Pending</button>
-        <button class="filter-pill"        id="ff-purchased" onclick="setFFilter('purchased')">Purchased</button>
-      </div>
-      <div class="filter-bar">
-        <button class="filter-pill active" id="fpf-all"   onclick="setFPersonFilter('all')">👥 All</button>
-        <button class="filter-pill"        id="fpf-david" onclick="setFPersonFilter('david')">👨 David</button>
-        <button class="filter-pill"        id="fpf-yesy"  onclick="setFPersonFilter('yesy')">👩 Yesy</button>
-        <button class="filter-pill"        id="fpf-split" onclick="setFPersonFilter('split')">🤝 Split</button>
-      </div>
-      <div class="filter-bar" id="fb-bar" style="display:none"></div>
-    </div>
-
-    <div id="furniture-grid" class="furniture-grid"></div>
-    <div id="furniture-empty" class="empty-state">
-      <div class="empty-icon">🛋️</div>
-      <p>Your shopping list is empty.<br>Paste a product URL above to get started!</p>
-    </div>
-
-    <!-- WISHLIST -->
-    <div style="margin-top:32px">
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">💭 Wishlist — Items to Consider</div>
-      <div class="card" style="padding:20px;margin-bottom:16px">
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <input id="w-name" type="text" placeholder="Item idea (e.g. Floor lamp for living room)" style="flex:1;min-width:180px">
-          <input id="w-note" type="text" placeholder="Note (optional)" style="flex:1;min-width:140px">
-          <button class="btn-primary" style="white-space:nowrap" onclick="addWishlist()">+ Add</button>
-        </div>
-      </div>
-      <div id="wishlist-list"></div>
-      <div id="wishlist-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">No wishlist items yet — jot down ideas here!</div>
-    </div>
-  </div>
-
-  <!-- ===== BUDGET TAB ===== -->
-  <div id="budget-tab" style="display:none">
-
-    <!-- Bank Details -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-sm)">
-      <div style="width:44px;height:44px;border-radius:10px;background:#FFCC00;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
-        <img src="https://www.commbank.com.au/favicon-32x32.png" alt="CBA" width="28" height="28" onerror="this.parentElement.innerHTML='<span style=\'font-size:11px;font-weight:700;color:#000\'>CBA</span>'">
-      </div>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">Commonwealth Bank</div>
-        <div style="font-size:12px;color:var(--muted)">BSB <span style="font-weight:600;color:var(--text)">067 873</span> &nbsp;·&nbsp; Account <span style="font-weight:600;color:var(--text)">2540 1832</span></div>
-      </div>
-    </div>
-
-    <div id="budget-summary" class="budget-summary"></div>
-
-    <div class="card form-card">
-      <p class="section-title">Add Entry</p>
-      <div class="type-toggle">
-        <label><input type="radio" name="b-type" value="income" checked onchange="updateBudgetForm()"> Income</label>
-        <label><input type="radio" name="b-type" value="expense" onchange="updateBudgetForm()"> Expense</label>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <input id="b-desc"   type="text"   placeholder="Description (e.g. Salary, Rent)">
-        <select id="b-category"></select>
-        <input id="b-amount" type="number" placeholder="Amount ($)" min="0" step="0.01">
-        <select id="b-frequency">
-          <option value="weekly">Weekly</option>
-          <option value="fortnightly">Fortnightly</option>
-          <option value="monthly" selected>Monthly</option>
-          <option value="annual">Annual</option>
-        </select>
-        <div style="grid-column:1/-1">
-          <p class="person-label" id="b-person-label">Who earns this?</p>
-          <div class="person-select">
-            <button type="button" class="person-opt sel-david" id="bp-david" onclick="selectPerson('david')">👨 David</button>
-            <button type="button" class="person-opt"           id="bp-yesy"  onclick="selectPerson('yesy')">👩 Yesy</button>
-            <button type="button" class="person-opt"           id="bp-split" onclick="selectPerson('split')">🤝 Split 50/50</button>
-          </div>
-        </div>
-      </div>
-      <button class="btn-primary" style="margin-top:16px" onclick="addBudget()">+ Add Entry</button>
-    </div>
-
-    <div class="budget-lists">
-      <div class="card list-card">
-        <div class="list-card-title"><span class="dot" style="background:#16A34A"></span><span style="color:#16A34A">Income</span></div>
-        <div id="income-list"></div>
-        <div id="income-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No income added yet</div>
-        <div id="income-total" class="list-total" style="display:none"></div>
-      </div>
-      <div class="card list-card">
-        <div class="list-card-title"><span class="dot" style="background:#DC2626"></span><span style="color:#DC2626">Expenses</span></div>
-        <div id="expense-list"></div>
-        <div id="expense-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No expenses added yet</div>
-        <div id="expense-total" class="list-total" style="display:none"></div>
-      </div>
-    </div>
-
-    <!-- Joint Account Log -->
-    <div style="margin-top:28px">
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">🏦 Joint Account Contributions</div>
-      <div class="card" style="padding:20px;margin-bottom:16px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div style="grid-column:1/-1"><div class="modal-label">Description</div><input id="c-desc" type="text" placeholder="e.g. Rent payment, Groceries top-up"></div>
-          <div><div class="modal-label">Amount ($)</div><input id="c-amount" type="number" placeholder="0" min="0" step="0.01"></div>
-          <div><div class="modal-label">Date</div><input id="c-date" type="date"></div>
-          <div style="grid-column:1/-1">
-            <div class="modal-label">Paid by</div>
-            <div class="person-select">
-              <button type="button" class="person-opt sel-david" id="cp-david" onclick="selectCPerson('david')">👨 David</button>
-              <button type="button" class="person-opt"           id="cp-yesy"  onclick="selectCPerson('yesy')">👩 Yesy</button>
-            </div>
-          </div>
-        </div>
-        <button class="btn-primary" style="margin-top:16px" onclick="addContribution()">+ Log Contribution</button>
-      </div>
-      <div class="card" style="padding:20px">
-        <div id="contrib-list"></div>
-        <div id="contrib-empty" style="text-align:center;padding:32px 0;color:var(--muted);font-size:13px">No contributions logged yet</div>
-        <div id="contrib-total" class="list-total" style="display:none"></div>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<!-- FURNITURE EDIT MODAL -->
-<div class="modal-overlay" id="f-modal" onclick="if(event.target===this)closeModal('f-modal')">
-  <div class="modal-box">
-    <div class="modal-title">✏️ Edit Item</div>
-    <input type="hidden" id="ef-id">
-    <div class="modal-grid">
-      <div class="full"><div class="modal-label">Item name</div><input id="ef-name" type="text" placeholder="Item name"></div>
-      <div><div class="modal-label">Store / Brand</div><input id="ef-store" type="text" placeholder="e.g. IKEA"></div>
-      <div><div class="modal-label">Price ($)</div><input id="ef-price" type="number" placeholder="0" min="0" step="0.01"></div>
-      <div><div class="modal-label">Qty</div><input id="ef-qty" type="number" placeholder="1" min="1"></div>
-      <div class="full"><div class="modal-label">Product URL</div><input id="ef-url" type="text" placeholder="https://..."></div>
-      <div class="full"><div class="modal-label">Thumbnail image URL</div><input id="ef-image" type="text" placeholder="https://..."></div>
-      <div class="full"><div class="modal-label">Note</div><input id="ef-note" type="text" placeholder="Optional note"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('f-modal')">Cancel</button>
-      <button class="btn-save" onclick="saveEditFurniture()">Save changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- BUDGET EDIT MODAL -->
-<div class="modal-overlay" id="b-modal" onclick="if(event.target===this)closeModal('b-modal')">
-  <div class="modal-box">
-    <div class="modal-title">✏️ Edit Entry</div>
-    <input type="hidden" id="eb-id">
-    <div class="modal-grid">
-      <div class="full"><div class="modal-label">Description</div><input id="eb-desc" type="text" placeholder="e.g. Rent, Salary"></div>
-      <div><div class="modal-label">Amount ($)</div><input id="eb-amount" type="number" placeholder="0" min="0" step="0.01"></div>
-      <div><div class="modal-label">Frequency</div>
-        <select id="eb-frequency">
-          <option value="weekly">Weekly</option>
-          <option value="fortnightly">Fortnightly</option>
-          <option value="monthly">Monthly</option>
-          <option value="annual">Annual</option>
-        </select>
-      </div>
-      <div class="full"><div class="modal-label">Category</div><select id="eb-category"></select></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('b-modal')">Cancel</button>
-      <button class="btn-save" onclick="saveEditBudget()">Save changes</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
-<script>
-// ===== FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCS_C43bv77bDtRaVOqu4OctFI_l8hD8cE",
-  authDomain: "our-home-cda87.firebaseapp.com",
-  databaseURL: "https://our-home-cda87-default-rtdb.firebaseio.com",
-  projectId: "our-home-cda87",
-  storageBucket: "our-home-cda87.firebasestorage.app",
-  messagingSenderId: "107257788656",
-  appId: "1:107257788656:web:c5fd25aab407c89cf72a35"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const dataRef = db.ref('our-home');
-
-function setSyncStatus(status) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if (status === 'live')   { dot.style.background='#16A34A'; lbl.textContent='Synced'; }
-  if (status === 'saving') { dot.style.background='#F59E0B'; lbl.textContent='Saving…'; }
-  if (status === 'error')  { dot.style.background='#DC2626'; lbl.textContent='Offline'; }
-}
-
-// ===== STATE =====
-let S = { furniture: [], budget: [], contributions: [], wishlist: [] };
-let fFilter = 'all';
-let fPersonFilter = 'all';
-let fBrandFilter = 'all';
-let selPerson = 'david';
-let selFPerson = 'david';
-let selCPerson = 'david';
-let _saving = false;
-
-const save = () => {
-  setSyncStatus('saving');
-  _saving = true;
-  dataRef.set(S)
-    .then(()=>{ setSyncStatus('live'); _saving=false; })
-    .catch(()=>{ setSyncStatus('error'); _saving=false; });
-  localStorage.setItem('our-home-v3', JSON.stringify(S));
-};
-
-const load = () => {
+  let html = '';
   try {
-    let d = localStorage.getItem('our-home-v3')
-         || localStorage.getItem('our-home-v2')
-         || localStorage.getItem('our-home-app');
-    if (d) S = JSON.parse(d);
-  } catch(e) {}
-  if (!S.wishlist) S.wishlist = [];
-};
+    const r = await fetch(url, {
+      headers: {
+        'User-Agent': UA,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-AU,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+      },
+      redirect: 'follow',
+    });
+    html = await r.text();
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
 
-function initFirebase() {
-  // Sign in anonymously so Firebase rules (auth != null) allow read/write
-  firebase.auth().signInAnonymously().catch(()=>{});
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) return;
-    dataRef.on('value', snapshot => {
-      const data = snapshot.val();
-      if (data && !_saving) {
-        S = {
-          furniture:     data.furniture     || [],
-          budget:        data.budget        || [],
-          contributions: data.contributions || [],
-          wishlist:      data.wishlist      || []
+  // ---- helpers ----
+  const attr = (tag, a) => {
+    const m = tag.match(new RegExp(`${a}=["']([^"']+)["']`, 'i'));
+    return m ? m[1].trim() : '';
+  };
+
+  // Get <meta> content by property or name (handles either attribute order)
+  const getMeta = (...props) => {
+    for (const prop of props) {
+      const re1 = new RegExp(`<meta[^>]*(?:property|name)=["']${prop}["'][^>]*content=["']([^"']+)["']`, 'i');
+      const re2 = new RegExp(`<meta[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']${prop}["']`, 'i');
+      const m = html.match(re1) || html.match(re2);
+      if (m) return m[1].trim();
+    }
+    return '';
+  };
+
+  // Make image URL absolute
+  const absUrl = (src) => {
+    if (!src) return '';
+    if (src.startsWith('//')) return 'https:' + src;
+    if (src.startsWith('http')) return src;
+    try { return new URL(src, url).href; } catch { return src; }
+  };
+
+  // ---- TITLE ----
+  let title = getMeta('og:title', 'twitter:title', 'title');
+  if (!title) { const m = html.match(/<title[^>]*>([^<]+)<\/title>/i); title = m ? m[1] : ''; }
+  title = title.replace(/&#?[a-z0-9]+;/gi, ' ').split(/\s*[|–—·•]\s*/)[0].trim();
+
+  // ---- IMAGE ----
+  let image = getMeta('og:image', 'og:image:url', 'twitter:image', 'image');
+
+  // Try itemprop image
+  if (!image) {
+    const m = html.match(/<(?:meta|link)[^>]*itemprop=["']image["'][^>]*(?:content|href)=["']([^"']+)["']/i)
+           || html.match(/<(?:meta|link)[^>]*(?:content|href)=["']([^"']+)["'][^>]*itemprop=["']image["']/i);
+    if (m) image = m[1];
+  }
+
+  // Try JSON-LD image
+  if (!image) {
+    const ldBlock = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+    if (ldBlock) {
+      try {
+        const obj = JSON.parse(ldBlock[1]);
+        const search = (o) => {
+          if (!o || typeof o !== 'object') return;
+          if (o.image) {
+            const img = Array.isArray(o.image) ? o.image[0] : o.image;
+            return typeof img === 'string' ? img : img.url || '';
+          }
+          for (const v of Object.values(o)) { const r = search(v); if (r) return r; }
         };
-        localStorage.setItem('our-home-v3', JSON.stringify(S));
-        renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
-      }
-      setSyncStatus('live');
-    }, () => setSyncStatus('error'));
-  });
-}
-
-const $   = id => document.getElementById(id);
-const fmt = n  => Number(n).toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0});
-
-// ===== TABS =====
-function switchTab(tab) {
-  $('furniture-tab').style.display = tab==='furniture' ? '' : 'none';
-  $('budget-tab').style.display    = tab==='budget'    ? '' : 'none';
-  $('tab-furniture').className = 'tab-btn' + (tab==='furniture' ? ' active' : '');
-  $('tab-budget').className    = 'tab-btn' + (tab==='budget'    ? ' active' : '');
-}
-
-// ===== URL FETCH =====
-let _fetchData = null;
-
-function extractDomain(url) {
-  try {
-    const h = new URL(url).hostname.replace('www.','');
-    const part = h.split('.')[0];
-    return part.charAt(0).toUpperCase() + part.slice(1);
-  } catch(e) { return ''; }
-}
-
-async function fetchProduct() {
-  const url = $('f-url').value.trim();
-  if (!url) { $('f-url').focus(); return; }
-
-  $('fetch-label').textContent = '…';
-  $('fetch-icon').textContent  = '';
-  $('btn-fetch').disabled = true;
-
-  let name = '', image = '', store = extractDomain(url), price = 0;
-
-  try {
-    const res  = await fetch('/api/fetch-meta?url=' + encodeURIComponent(url));
-    const data = await res.json();
-    name  = data.title || '';
-    image = data.image || '';
-    if (data.store) store = data.store;
-    price = data.price || 0;
-  } catch(e) { /* silent — user can type name manually */ }
-
-  _fetchData = { url, imageUrl: image, store, name, price };
-  if (name) $('f-name').value = name;
-  $('preview-name').textContent  = name  || store || 'Item';
-  $('preview-store').textContent = [store, price ? '$' + price.toFixed(2) : ''].filter(Boolean).join(' · ');
-  if (image) { $('preview-img').src = image; $('preview-img').style.display=''; }
-  else { $('preview-img').style.display = 'none'; }
-  $('item-preview').style.display = 'flex';
-
-  $('fetch-label').textContent = 'Fetch';
-  $('fetch-icon').textContent  = '🔍';
-  $('btn-fetch').disabled = false;
-}
-
-// ===== FURNITURE =====
-function selectFPerson(p) {
-  selFPerson = p;
-  ['david','yesy','split'].forEach(x => {
-    $('fo-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
-  });
-}
-
-function addFurniture() {
-  const name = $('f-name').value.trim() || (_fetchData && _fetchData.name) || '';
-  if (!name) { $('f-name').focus(); return; }
-
-  S.furniture.unshift({
-    id:        Date.now(),
-    name,
-    store:     _fetchData ? _fetchData.store    : '',
-    url:       _fetchData ? _fetchData.url      : $('f-url').value.trim(),
-    imageUrl:  _fetchData ? _fetchData.imageUrl : '',
-    price:     _fetchData ? (_fetchData.price || 0) : 0,
-    qty:       parseInt($('f-qty').value) || 1,
-    note:      '',
-    person:    selFPerson,
-    purchased: false
-  });
-
-  $('f-name').value=''; $('f-url').value=''; $('f-qty').value=1;
-  $('item-preview').style.display='none';
-  _fetchData = null;
-  save(); renderFurniture();
-}
-
-function removeFurniture(id) { S.furniture = S.furniture.filter(i=>i.id!==id); save(); renderFurniture(); }
-
-function openEditFurniture(id) {
-  const i = S.furniture.find(x=>x.id===id); if(!i) return;
-  $('ef-id').value    = id;
-  $('ef-name').value  = i.name;
-  $('ef-store').value = i.store    || '';
-  $('ef-price').value = i.price    || '';
-  $('ef-qty').value   = i.qty      || 1;
-  $('ef-url').value   = i.url      || '';
-  $('ef-image').value = i.imageUrl || '';
-  $('ef-note').value  = i.note     || '';
-  $('f-modal').classList.add('open');
-}
-function saveEditFurniture() {
-  const id = parseInt($('ef-id').value);
-  const i  = S.furniture.find(x=>x.id===id); if(!i) return;
-  i.name     = $('ef-name').value.trim()  || i.name;
-  i.store    = $('ef-store').value.trim();
-  i.price    = parseFloat($('ef-price').value) || 0;
-  i.qty      = parseInt($('ef-qty').value)     || 1;
-  i.url      = $('ef-url').value.trim();
-  i.imageUrl = $('ef-image').value.trim();
-  i.note     = $('ef-note').value.trim();
-  save(); renderFurniture(); closeModal('f-modal');
-}
-function closeModal(id) { $(id).classList.remove('open'); }
-function togglePurchased(id) { const i=S.furniture.find(x=>x.id===id); if(i) i.purchased=!i.purchased; save(); renderFurniture(); }
-function updQty(id, d) { const i=S.furniture.find(x=>x.id===id); if(i) i.qty=Math.max(1,i.qty+d); save(); renderFurniture(); }
-function setFPerson(id, p) { const i=S.furniture.find(x=>x.id===id); if(!i) return; i.person=p; save(); renderFurniture(); }
-
-// ===== FILTERS =====
-function setFFilter(f) {
-  fFilter = f;
-  ['all','pending','purchased'].forEach(x => { $('ff-'+x).className = 'filter-pill' + (x===f?' active':''); });
-  renderFurniture();
-}
-function setFPersonFilter(p) {
-  fPersonFilter = p;
-  ['all','david','yesy','split'].forEach(x => { $('fpf-'+x).className = 'filter-pill' + (x===p?' active':''); });
-  renderFurniture();
-}
-function setFBrandFilter(b) { fBrandFilter = b; renderFurniture(); }
-
-function renderFurniture() {
-  const all = S.furniture;
-  let shown = fFilter==='pending'   ? all.filter(i=>!i.purchased)
-            : fFilter==='purchased' ? all.filter(i=> i.purchased) : all;
-  if (fPersonFilter !== 'all') shown = shown.filter(i => (i.person||'split') === fPersonFilter);
-  if (fBrandFilter  !== 'all') shown = shown.filter(i => (i.store||'').toLowerCase() === fBrandFilter);
-
-  const grid  = $('furniture-grid');
-  const empty = $('furniture-empty');
-  const sumEl = $('f-summary');
-  const filEl = $('f-filters');
-  const bBar  = $('fb-bar');
-
-  if (all.length===0) {
-    grid.innerHTML=''; empty.style.display=''; sumEl.style.display='none'; filEl.style.display='none'; bBar.style.display='none'; return;
-  }
-  empty.style.display='none'; filEl.style.display='';
-
-  // Brand filter bar
-  const brands = [...new Set(all.map(i=>i.store).filter(Boolean))];
-  if (brands.length > 0) {
-    bBar.style.display='flex';
-    bBar.innerHTML = [
-      `<button class="filter-pill ${fBrandFilter==='all'?'active':''}" onclick="setFBrandFilter('all')">🏪 All Brands</button>`,
-      ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter('${b.toLowerCase().replace(/'/g,"&#39;")}')">${b}</button>`)
-    ].join('');
-  } else { bBar.style.display='none'; }
-
-  // Summary chips
-  const totalV = all.reduce((s,i)=>s+(i.price*i.qty),0);
-  const doneC  = all.filter(i=>i.purchased).length;
-  const personSpend = (p) => all.reduce((s,i) => {
-    const v = i.price * i.qty;
-    if (i.person === p) return s + v;
-    if (i.person === 'split') return s + v/2;
-    return s;
-  }, 0);
-  const davidTotal = personSpend('david');
-  const yesyTotal  = personSpend('yesy');
-
-  sumEl.style.display='flex';
-  sumEl.innerHTML = `
-    <div class="summary-chip"><span class="chip-icon">📋</span><div><div class="chip-label">Items</div><div class="chip-val">${doneC}/${all.length} done</div></div></div>
-    ${totalV>0?`<div class="summary-chip"><span class="chip-icon">💵</span><div><div class="chip-label">Total</div><div class="chip-val">$${fmt(totalV)}</div></div></div>`:''}
-    ${davidTotal>0?`<div class="summary-chip"><span class="chip-icon">👨</span><div><div class="chip-label">David's share</div><div class="chip-val" style="color:var(--david)">$${fmt(davidTotal)}</div></div></div>`:''}
-    ${yesyTotal>0?`<div class="summary-chip"><span class="chip-icon">👩</span><div><div class="chip-label">Yesy's share</div><div class="chip-val" style="color:var(--yesy)">$${fmt(yesyTotal)}</div></div></div>`:''}
-  `;
-
-  if (shown.length===0) {
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--muted);font-size:14px">No items match this filter</div>`; return;
+        image = [].concat(obj).reduce((acc, o) => acc || search(o), '') || '';
+      } catch(e) {}
+    }
   }
 
-  grid.innerHTML = shown.map(item=>`
-    <div class="item-card fade-in ${item.purchased?'purchased':''}">
-      <div class="item-thumb">
-        ${item.imageUrl
-          ? `<img src="${item.imageUrl}" alt="" onerror="this.parentElement.innerHTML='<span class=\\'thumb-placeholder\\'>🛋️</span>'">`
-          : `<span class="thumb-placeholder">🛋️</span>`}
-        ${item.purchased ? `<span class="thumb-badge">✓ Purchased</span>` : ''}
-        ${item.url ? `<a href="${item.url}" target="_blank" class="thumb-link"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : ''}
-      </div>
-      <div class="item-body">
-        <div class="item-name">${item.name}</div>
-        ${item.store ? `<div class="item-store">${item.store}</div>` : ''}
-        ${item.note  ? `<div class="item-note">${item.note}</div>`   : ''}
-        ${item.price>0 ? `<div class="item-price">$${fmt(item.price*item.qty)} <span>${item.qty}× $${fmt(item.price)}</span></div>` : ''}
-        <div class="person-mini">
-          <button class="pmini ${(item.person||'split')==='david'?'sel-david':''}" onclick="setFPerson(${item.id},'david')">👨 David</button>
-          <button class="pmini ${(item.person||'split')==='yesy' ?'sel-yesy' :''}" onclick="setFPerson(${item.id},'yesy')">👩 Yesy</button>
-          <button class="pmini ${(item.person||'split')==='split'?'sel-split':''}" onclick="setFPerson(${item.id},'split')">🤝 Split</button>
-        </div>
-        <div class="item-actions">
-          <div class="qty-control">
-            <button class="qty-btn" onclick="updQty(${item.id},-1)">−</button>
-            <span class="qty-val">${item.qty}</span>
-            <button class="qty-btn" onclick="updQty(${item.id},1)">+</button>
-          </div>
-          <div class="action-row">
-            <button class="btn-done ${item.purchased?'done':''}" onclick="togglePurchased(${item.id})">${item.purchased?'✓ Done':'Mark done'}</button>
-            <button class="btn-edit" onclick="openEditFurniture(${item.id})" title="Edit">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            </button>
-            <button class="btn-delete" onclick="removeFurniture(${item.id})" title="Delete">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>`).join('');
-}
+  image = absUrl(image);
 
-// ===== BUDGET =====
-const incomeCats  = ['Salary','Freelance','Investment','Government','Rental','Side Income','Other'];
-const expenseCats = ['Housing / Rent','Food & Groceries','Transport','Utilities','Health','Entertainment','Clothing','Education','Insurance','Subscriptions','Savings Goal','Other'];
-const catEmoji = {'Salary':'💼','Freelance':'💻','Investment':'📈','Government':'🏛️','Rental':'🏠','Side Income':'✨','Housing / Rent':'🏠','Food & Groceries':'🛒','Transport':'🚗','Utilities':'💡','Health':'🏥','Entertainment':'🎬','Clothing':'👕','Education':'📚','Insurance':'🛡️','Subscriptions':'📱','Savings Goal':'🐷','Other':'💰'};
-const freqLbl = {weekly:'/wk',fortnightly:'/fn',monthly:'/mo',annual:'/yr'};
-const toMo = (a,f) => f==='weekly'?a*52/12:f==='fortnightly'?a*26/12:f==='annual'?a/12:a;
+  // ---- STORE ----
+  const store = getMeta('og:site_name') || (() => {
+    try { const h = new URL(url).hostname.replace('www.',''); return h.split('.')[0].replace(/^./, c=>c.toUpperCase()); } catch { return ''; }
+  })();
 
-function updateBudgetForm() {
-  const type = document.querySelector('input[name="b-type"]:checked').value;
-  $('b-category').innerHTML = (type==='income'?incomeCats:expenseCats).map(c=>`<option>${c}</option>`).join('');
-  $('b-person-label').textContent = type==='income'?'Who earns this?':'Who pays / how to split?';
-}
+  // ---- PRICE ----
+  let price = 0;
 
-function selectPerson(p) {
-  selPerson = p;
-  ['david','yesy','split'].forEach(x => { $('bp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
-}
-
-function addBudget() {
-  const desc = $('b-desc').value.trim(), amount = parseFloat($('b-amount').value);
-  if (!desc || !amount) return;
-  S.budget.unshift({ id:Date.now(), type:document.querySelector('input[name="b-type"]:checked').value, category:$('b-category').value, description:desc, amount, frequency:$('b-frequency').value, person:selPerson });
-  $('b-desc').value=''; $('b-amount').value='';
-  save(); renderBudget();
-}
-function removeBudget(id) { S.budget=S.budget.filter(i=>i.id!==id); save(); renderBudget(); }
-function setBPerson(id, p) { const i=S.budget.find(x=>x.id===id); if(!i) return; i.person=p; save(); renderBudget(); }
-function openEditBudget(id) {
-  const i=S.budget.find(x=>x.id===id); if(!i) return;
-  $('eb-id').value     = id;
-  $('eb-desc').value   = i.description;
-  $('eb-amount').value = i.amount;
-  $('eb-category').innerHTML = (i.type==='income'?incomeCats:expenseCats).map(c=>`<option${c===i.category?' selected':''}>${c}</option>`).join('');
-  $('eb-frequency').value = i.frequency;
-  $('b-modal').classList.add('open');
-}
-function saveEditBudget() {
-  const id=parseInt($('eb-id').value);
-  const i=S.budget.find(x=>x.id===id); if(!i) return;
-  i.description = $('eb-desc').value.trim()        || i.description;
-  i.amount      = parseFloat($('eb-amount').value) || i.amount;
-  i.category    = $('eb-category').value;
-  i.frequency   = $('eb-frequency').value;
-  save(); renderBudget(); closeModal('b-modal');
-}
-
-function personShare(entry,p) {
-  if (entry.person==='split') return toMo(entry.amount,entry.frequency)/2;
-  return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
-}
-
-function renderBudget() {
-  const income  = S.budget.filter(i=>i.type==='income');
-  const expense = S.budget.filter(i=>i.type==='expense');
-  const d = { inc: income.reduce((s,i)=>s+personShare(i,'david'),0), exp: expense.reduce((s,i)=>s+personShare(i,'david'),0) };
-  const y = { inc: income.reduce((s,i)=>s+personShare(i,'yesy'),0),  exp: expense.reduce((s,i)=>s+personShare(i,'yesy'),0) };
-  d.net = d.inc-d.exp; y.net = y.inc-y.exp;
-  const all = { inc: income.reduce((s,i)=>s+toMo(i.amount,i.frequency),0), exp: expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0) };
-  all.net = all.inc-all.exp;
-
-  function personCardHTML(cls, title, data) {
-    const pct = data.inc>0 ? Math.min(100,(data.exp/data.inc)*100) : 0;
-    const barCol = pct>90?'#DC2626':pct>70?'#F59E0B':'#16A34A';
-    return `<div class="person-card ${cls}">
-      <div class="person-card-title">${title}</div>
-      <div class="person-row"><span class="label">Income</span><span class="val-green">$${fmt(data.inc)}/mo</span></div>
-      <div class="person-row"><span class="label">Expenses</span><span class="val-red">$${fmt(data.exp)}/mo</span></div>
-      <div class="person-divider"></div>
-      <div class="person-net"><span>Net savings</span><span style="color:${data.net>=0?'#16A34A':'#DC2626'}">$${fmt(data.net)}/mo</span></div>
-      ${data.inc>0?`<div class="budget-bar"><div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct.toFixed(0)}%;background:${barCol}"></div></div><div class="budget-bar-label">${pct.toFixed(0)}% of income spent</div></div>`:''}
-    </div>`;
+  // 1. JSON-LD (most reliable when available)
+  const ldBlocks = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const block of ldBlocks) {
+    if (price) break;
+    try {
+      const search = (o) => {
+        if (!o || typeof o !== 'object') return;
+        if (['Product','Offer','AggregateOffer'].includes(o['@type'])) {
+          const off = o.offers ? (Array.isArray(o.offers) ? o.offers[0] : o.offers) : o;
+          const p = off.price ?? off.lowPrice;
+          if (p !== undefined && p !== null) {
+            price = parseFloat(String(p).replace(/[^0-9.]/g, ''));
+            return;
+          }
+        }
+        for (const v of Object.values(o)) search(v);
+      };
+      [].concat(JSON.parse(block[1])).forEach(search);
+    } catch(e) {}
   }
 
-  $('budget-summary').innerHTML =
-    personCardHTML('david','👨 David\'s Monthly', d) +
-    personCardHTML('yesy', '👩 Yesy\'s Monthly',  y) +
-    personCardHTML('combined','🤝 Combined Monthly', all);
-
-  function renderList(items, listId, emptyId, totalId, isIncome) {
-    const total = items.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
-    const amtCol = isIncome?'var(--green)':'var(--red)';
-    if (items.length===0) { $(listId).innerHTML=''; $(emptyId).style.display=''; $(totalId).style.display='none'; return; }
-    $(emptyId).style.display='none'; $(totalId).style.display='flex';
-    $(totalId).innerHTML=`<span>Monthly total</span><span>$${fmt(total)}</span>`;
-    $(listId).innerHTML = items.map(i=>`
-      <div class="budget-row fade-in">
-        <div class="budget-row-left">
-          <span class="budget-row-icon">${catEmoji[i.category]||'💰'}</span>
-          <div style="min-width:0">
-            <div class="budget-row-name">${i.description}</div>
-            <div class="budget-row-meta" style="gap:4px">
-              <button class="pmini ${i.person==='david'?'sel-david':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'david')">👨</button>
-              <button class="pmini ${i.person==='yesy' ?'sel-yesy' :''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'yesy')">👩</button>
-              <button class="pmini ${i.person==='split'?'sel-split':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'split')">🤝</button>
-              <span>${i.category}</span>
-            </div>
-          </div>
-        </div>
-        <div class="budget-row-right">
-          <div>
-            <div class="budget-row-amount" style="color:${amtCol}">$${fmt(i.amount)}${freqLbl[i.frequency]}</div>
-            ${i.frequency!=='monthly'?`<div class="budget-row-monthly">$${fmt(toMo(i.amount,i.frequency))}/mo</div>`:''}
-          </div>
-          <button class="btn-edit" style="opacity:0" onclick="openEditBudget(${i.id})" title="Edit">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          </button>
-          <button class="btn-remove-row" onclick="removeBudget(${i.id})" title="Delete">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-          </button>
-        </div>
-      </div>`).join('');
+  // 2. Meta itemprop price
+  if (!price) {
+    const m = html.match(/<meta[^>]*itemprop=["']price["'][^>]*content=["']([^"']+)["']/i)
+           || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*itemprop=["']price["']/i);
+    if (m) price = parseFloat(m[1].replace(/[^0-9.]/g, '')) || 0;
   }
 
-  renderList(income,  'income-list',  'income-empty',  'income-total',  true);
-  renderList(expense, 'expense-list', 'expense-empty', 'expense-total', false);
-}
+  // 3. og:price:amount / product:price:amount
+  if (!price) {
+    const pm = getMeta('product:price:amount', 'og:price:amount');
+    if (pm) price = parseFloat(pm) || 0;
+  }
 
-// ===== CONTRIBUTIONS =====
-function selectCPerson(p) {
-  selCPerson = p;
-  ['david','yesy'].forEach(x => { $('cp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
-}
+  // 4. data-price or data-product-price attributes
+  if (!price) {
+    const m = html.match(/data-(?:product-)?price=["']([0-9]+(?:\.[0-9]{1,2})?)["']/i)
+           || html.match(/["']price["']\s*:\s*["']?([0-9]+(?:\.[0-9]{1,2})?)["']?/);
+    if (m) price = parseFloat(m[1]) || 0;
+  }
 
-function addContribution() {
-  const desc   = $('c-desc').value.trim();
-  const amount = parseFloat($('c-amount').value);
-  const date   = $('c-date').value;
-  if (!desc || !amount || !date) return;
-  S.contributions.unshift({ id:Date.now(), desc, amount, date, person:selCPerson });
-  $('c-desc').value=''; $('c-amount').value='';
-  save(); renderContributions();
-}
-function removeContribution(id) { S.contributions=S.contributions.filter(i=>i.id!==id); save(); renderContributions(); }
+  // 5. span/div itemprop=price with content attribute
+  if (!price) {
+    const m = html.match(/<[^>]*itemprop=["']price["'][^>]*content=["']([^"']+)["']/i);
+    if (m) price = parseFloat(m[1].replace(/[^0-9.]/g, '')) || 0;
+  }
 
-function renderContributions() {
-  const list=_$('contrib-list'), empty=_$('contrib-empty'), total=_$('contrib-total');
-  function _$(id){return document.getElementById(id);}
-  const items = S.contributions || [];
-  if (items.length===0) { list.innerHTML=''; empty.style.display=''; total.style.display='none'; return; }
-  empty.style.display='none';
-  const davidTotal = items.filter(i=>i.person==='david').reduce((s,i)=>s+i.amount,0);
-  const yesyTotal  = items.filter(i=>i.person==='yesy').reduce((s,i)=>s+i.amount,0);
-  const grandTotal = items.reduce((s,i)=>s+i.amount,0);
-  total.style.display='flex'; total.style.flexDirection='column'; total.style.gap='4px';
-  total.innerHTML = `
-    <div style="display:flex;justify-content:space-between"><span>Total contributed</span><span>$${fmt(grandTotal)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)"><span>👨 David</span><span style="color:var(--david)">$${fmt(davidTotal)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:400;color:var(--muted)"><span>👩 Yesy</span><span style="color:var(--yesy)">$${fmt(yesyTotal)}</span></div>`;
-  list.innerHTML = items.map(i => {
-    const d = new Date(i.date);
-    const dateStr = d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
-    const isD = i.person==='david';
-    return `<div class="budget-row fade-in" style="align-items:flex-start">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
-        <div style="width:36px;height:36px;border-radius:10px;background:${isD?'var(--david-bg)':'var(--yesy-bg)'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isD?'👨':'👩'}</div>
-        <div style="min-width:0">
-          <div style="font-size:13px;font-weight:500;color:var(--text)">${i.desc}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px"><span style="font-weight:600;color:${isD?'var(--david)':'var(--yesy)'}">${isD?'David':'Yesy'}</span> added to joint account · ${dateStr}</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-top:2px">
-        <div style="font-size:14px;font-weight:700;color:var(--green)">+$${fmt(i.amount)}</div>
-        <button class="btn-remove-row" style="opacity:1" onclick="removeContribution(${i.id})">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+  res.json({ title, image, store, price: price || 0 });
 }
-
-// ===== WISHLIST =====
-function addWishlist() {
-  const name = $('w-name').value.trim();
-  if (!name) { $('w-name').focus(); return; }
-  S.wishlist.unshift({ id:Date.now(), name, note:$('w-note').value.trim() });
-  $('w-name').value=''; $('w-note').value='';
-  save(); renderWishlist();
-}
-function removeWishlist(id) { S.wishlist=S.wishlist.filter(i=>i.id!==id); save(); renderWishlist(); }
-function promoteWishlist(id) {
-  const item=(S.wishlist||[]).find(i=>i.id===id); if(!item) return;
-  $('f-name').value=item.name; $('f-url').value='';
-  $('fetch-status').innerHTML='';
-  $('item-preview').classList.remove('show');
-  pendingFetch=null;
-  switchTab('furniture');
-  $('f-name').scrollIntoView({behavior:'smooth',block:'center'});
-  $('f-name').focus();
-  removeWishlist(id);
-}
-function renderWishlist() {
-  const items=S.wishlist||[];
-  const listEl=$('wishlist-list'), emptyEl=$('wishlist-empty');
-  if (items.length===0) { listEl.innerHTML=''; emptyEl.style.display=''; return; }
-  emptyEl.style.display='none';
-  listEl.innerHTML=items.map(i=>`
-    <div class="card fade-in" style="padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
-      <div style="font-size:20px">💭</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${i.name}</div>
-        ${i.note?`<div style="font-size:12px;color:var(--muted);margin-top:2px">${i.note}</div>`:''}
-      </div>
-      <button onclick="promoteWishlist(${i.id})" style="padding:6px 14px;border-radius:8px;border:1.5px solid var(--sage);background:var(--sage-light);color:var(--sage-dark);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">→ Add to list</button>
-      <button class="btn-delete" onclick="removeWishlist(${i.id})" title="Remove">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>`).join('');
-}
-
-// ===== INIT =====
-load();
-updateBudgetForm();
-renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
-initFirebase();
-$('c-date').value = new Date().toISOString().split('T')[0];
-$('b-amount').addEventListener('keydown', e=>e.key==='Enter'&&addBudget());
-$('f-url').addEventListener('keydown',    e=>e.key==='Enter'&&fetchProduct());
-$('f-name').addEventListener('keydown',   e=>e.key==='Enter'&&addFurniture());
-$('w-name').addEventListener('keydown',   e=>e.key==='Enter'&&addWishlist());
-</script>
-</body>
-</html>
