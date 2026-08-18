@@ -472,6 +472,17 @@ input::placeholder { color: #B8B3AB; }
   <!-- ===== SHOPPING TAB ===== -->
   <div id="furniture-tab">
 
+    <!-- FLOOR PLAN -->
+    <div class="card" style="padding:16px;margin-bottom:20px;text-align:center">
+      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;letter-spacing:0.03em">🏠 FLOOR PLAN</div>
+      <img src="/floorplan.png" alt="Floor Plan" id="floorplan-img"
+           style="width:100%;border-radius:10px;cursor:zoom-in;transition:all 0.2s"
+           onclick="var fp=$('floorplan-img'); var expanded=fp.dataset.expanded==='1';
+                    fp.style.maxWidth=expanded?'':'none';
+                    fp.dataset.expanded=expanded?'':'1';
+                    fp.style.cursor=expanded?'zoom-in':'zoom-out'">
+    </div>
+
     <!-- ADD FORM -->
     <div class="card form-card">
       <p class="section-title">Add Item</p>
@@ -685,6 +696,7 @@ input::placeholder { color: #B8B3AB; }
     </div>
   </div>
 </div>
+
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
