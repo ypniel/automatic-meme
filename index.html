@@ -14,7 +14,6 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg: #F7F4EF;
   --surface: #FFFFFF;
@@ -41,7 +40,6 @@
   --radius-sm: 10px;
   --radius-pill: 999px;
 }
-
 body {
   font-family: 'DM Sans', -apple-system, sans-serif;
   background: var(--bg);
@@ -49,7 +47,6 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
-
 /* ---- HEADER ---- */
 header {
   background: var(--surface);
@@ -67,7 +64,6 @@ header {
 .logo-title { font-size: 17px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .logo-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .logo-short { display: none; }
-
 @media (max-width: 540px) {
   .header-inner { padding: 10px 14px; gap: 6px; }
   .logo-title { font-size: 14px; }
@@ -79,7 +75,6 @@ header {
   .tab-btn { padding: 7px 12px; font-size: 12px; }
   .tab-group { padding: 3px; gap: 2px; }
 }
-
 .tab-group {
   display: flex; gap: 4px;
   background: var(--bg);
@@ -104,10 +99,8 @@ header {
   color: var(--text);
   box-shadow: var(--shadow-sm);
 }
-
 /* ---- MAIN ---- */
 main { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
-
 /* ---- CARD ---- */
 .card {
   background: var(--surface);
@@ -115,14 +108,12 @@ main { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
-
 /* ---- SECTION TITLE ---- */
 .section-title {
   font-size: 11px; font-weight: 600;
   text-transform: uppercase; letter-spacing: .08em;
   color: var(--muted); margin-bottom: 16px;
 }
-
 /* ---- FORM ---- */
 .form-card { padding: 24px; margin-bottom: 24px; }
 input[type=text], input[type=number], input[type=url], input[type=date], select {
@@ -138,12 +129,10 @@ input[type=text], input[type=number], input[type=url], input[type=date], select 
 }
 input:focus, select:focus { border-color: var(--sage); background: #fff; }
 input::placeholder { color: #B8B3AB; }
-
 /* qty + person row */
 .add-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
 .add-row .qty-field { width: 90px; flex-shrink: 0; }
 .add-row .name-field { flex: 1; min-width: 140px; }
-
 .btn-primary {
   padding: 10px 22px;
   background: var(--text);
@@ -153,7 +142,6 @@ input::placeholder { color: #B8B3AB; }
   cursor: pointer; transition: opacity .15s;
 }
 .btn-primary:hover { opacity: .85; }
-
 /* ---- FILTER BAR ---- */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .filter-pill {
@@ -167,7 +155,6 @@ input::placeholder { color: #B8B3AB; }
 .filter-pill.active {
   background: var(--text); border-color: var(--text); color: #fff;
 }
-
 /* ---- SUMMARY STRIP ---- */
 .summary-strip {
   display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
@@ -183,7 +170,6 @@ input::placeholder { color: #B8B3AB; }
 .summary-chip .chip-icon { font-size: 18px; }
 .summary-chip .chip-label { font-size: 11px; color: var(--muted); }
 .summary-chip .chip-val { font-size: 14px; font-weight: 600; color: var(--text); }
-
 /* ---- FURNITURE GRID ---- */
 .furniture-grid {
   display: grid;
@@ -201,7 +187,6 @@ input::placeholder { color: #B8B3AB; }
 .item-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 .item-card.purchased { opacity: .55; }
 .item-card.purchased .item-name { text-decoration: line-through; }
-
 .item-thumb {
   height: 190px;
   background: var(--bg);
@@ -226,14 +211,12 @@ input::placeholder { color: #B8B3AB; }
   box-shadow: var(--shadow-sm);
 }
 .item-card:hover .thumb-link { opacity: 1; }
-
 .item-body { padding: 14px 16px 16px; }
 .item-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
 .item-store { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
 .item-note { font-size: 12px; color: var(--muted); font-style: italic; }
 .item-price { font-size: 15px; font-weight: 700; color: var(--text); margin-top: 8px; }
 .item-price span { font-size: 12px; font-weight: 400; color: var(--muted); }
-
 .item-actions {
   display: flex; align-items: center; justify-content: space-between;
   margin-top: 12px;
@@ -249,7 +232,6 @@ input::placeholder { color: #B8B3AB; }
 }
 .qty-btn:hover { border-color: var(--text); color: var(--text); }
 .qty-val { font-size: 14px; font-weight: 600; width: 20px; text-align: center; }
-
 .action-row { display: flex; align-items: center; gap: 8px; }
 .btn-done {
   padding: 6px 14px; border-radius: var(--radius-sm);
@@ -264,12 +246,10 @@ input::placeholder { color: #B8B3AB; }
   color: #D1C9BF; transition: color .15s; padding: 4px;
 }
 .btn-delete:hover { color: var(--red); }
-
 /* ---- EMPTY STATE ---- */
 .empty-state { text-align: center; padding: 80px 0; color: var(--muted); }
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; line-height: 1.6; }
-
 /* ---- BUDGET SUMMARY CARDS ---- */
 .budget-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
 .person-card {
@@ -279,24 +259,20 @@ input::placeholder { color: #B8B3AB; }
 .person-card.david { background: var(--david-bg); border-color: var(--david-border); }
 .person-card.yesy  { background: var(--yesy-bg);  border-color: var(--yesy-border); }
 .person-card.combined { background: var(--surface); border-color: var(--border); }
-
 .person-card-title { font-size: 12px; font-weight: 600; margin-bottom: 14px; }
 .person-card.david .person-card-title { color: var(--david); }
 .person-card.yesy  .person-card-title { color: var(--yesy); }
 .person-card.combined .person-card-title { color: var(--muted); }
-
 .person-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 6px; }
 .person-row .label { color: var(--muted); }
 .person-row .val-green { color: var(--green); font-weight: 600; }
 .person-row .val-red   { color: var(--red);   font-weight: 600; }
 .person-divider { height: 1px; background: rgba(0,0,0,.07); margin: 10px 0; }
 .person-net { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; }
-
 .budget-bar { margin-top: 10px; }
 .budget-bar-track { height: 4px; border-radius: 99px; background: rgba(0,0,0,.08); overflow: hidden; }
 .budget-bar-fill  { height: 100%; border-radius: 99px; transition: width .4s; }
 .budget-bar-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
-
 /* ---- PERSON SELECTOR ---- */
 .person-select { display: flex; gap: 8px; }
 .person-opt {
@@ -311,13 +287,11 @@ input::placeholder { color: #B8B3AB; }
 .person-opt.sel-david { border-color: var(--david); background: var(--david-bg); color: var(--david); }
 .person-opt.sel-yesy  { border-color: var(--yesy);  background: var(--yesy-bg);  color: var(--yesy); }
 .person-opt.sel-split { border-color: var(--sage);  background: var(--sage-light); color: var(--sage-dark); }
-
 /* ---- BUDGET LISTS ---- */
 .budget-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .list-card { padding: 20px; }
 .list-card-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .list-card-title .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-
 .budget-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 0;
@@ -331,7 +305,6 @@ input::placeholder { color: #B8B3AB; }
 .budget-row-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .budget-row-amount { font-size: 13px; font-weight: 700; text-align: right; }
 .budget-row-monthly { font-size: 11px; color: var(--muted); text-align: right; }
-
 .tag {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 8px; border-radius: var(--radius-pill);
@@ -340,7 +313,6 @@ input::placeholder { color: #B8B3AB; }
 .tag-david { background: var(--david-bg); color: var(--david); }
 .tag-yesy  { background: var(--yesy-bg);  color: var(--yesy); }
 .tag-split { background: var(--sage-light); color: var(--sage-dark); }
-
 /* ---- PERSON MINI BUTTONS (on cards) ---- */
 .person-mini { display: flex; gap: 5px; margin-top: 8px; }
 .pmini {
@@ -355,14 +327,12 @@ input::placeholder { color: #B8B3AB; }
 .pmini.sel-david { border-color: var(--david); background: var(--david-bg); color: var(--david); }
 .pmini.sel-yesy  { border-color: var(--yesy);  background: var(--yesy-bg);  color: var(--yesy); }
 .pmini.sel-split { border-color: var(--sage);  background: var(--sage-light); color: var(--sage-dark); }
-
 .list-total {
   margin-top: 12px; padding-top: 12px;
   border-top: 1px solid var(--border);
   font-size: 13px; font-weight: 600; color: var(--text);
   display: flex; justify-content: space-between;
 }
-
 .btn-remove-row {
   background: none; border: none; cursor: pointer;
   color: #D1C9BF; padding: 2px; transition: color .15s;
@@ -371,7 +341,6 @@ input::placeholder { color: #B8B3AB; }
 .budget-row:hover .btn-remove-row,
 .budget-row:hover .btn-edit { opacity: 1; }
 .btn-remove-row:hover { color: var(--red); }
-
 /* ---- TYPE RADIO ---- */
 .type-toggle { display: flex; gap: 16px; margin-bottom: 16px; }
 .type-toggle label {
@@ -379,10 +348,8 @@ input::placeholder { color: #B8B3AB; }
   font-size: 14px; font-weight: 500; cursor: pointer;
 }
 .type-toggle input { accent-color: var(--sage); }
-
 /* ---- PERSON LABEL ---- */
 .person-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-
 /* ---- MODAL ---- */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -418,15 +385,12 @@ input::placeholder { color: #B8B3AB; }
 .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .modal-grid .full { grid-column: 1 / -1; }
 .modal-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
-
 /* ---- ANIMATIONS ---- */
 .fade-in { animation: fi .2s ease; }
 @keyframes fi { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
 /* ---- SPINNER ---- */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--sage); border-radius: 50%; animation: spin .7s linear infinite; }
-
 /* ---- RESPONSIVE ---- */
 @media (max-width: 640px) {
   main { padding: 20px 16px 48px; }
@@ -439,7 +403,6 @@ input::placeholder { color: #B8B3AB; }
 </style>
 </head>
 <body>
-
 <!-- HEADER -->
 <header>
   <div class="header-inner">
@@ -466,27 +429,22 @@ input::placeholder { color: #B8B3AB; }
     </div>
   </div>
 </header>
-
 <main>
-
   <!-- ===== SHOPPING TAB ===== -->
   <div id="furniture-tab">
-
-    <!-- FLOOR PLAN -->
+    <!-- INSPO IMAGE -->
     <div class="card" style="padding:16px;margin-bottom:20px;text-align:center">
-      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;letter-spacing:0.03em">🏠 FLOOR PLAN</div>
-      <img src="/floorplan.png" alt="Floor Plan" id="floorplan-img"
+      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:10px;letter-spacing:0.03em">✨ INSPO</div>
+      <img src="/f7cb83f2-33d3-438f-8d8c-4a4aa5adaaa7.png" alt="Inspo" id="floorplan-img"
            style="width:100%;border-radius:10px;cursor:zoom-in;transition:all 0.2s"
-           onclick="var fp=$('floorplan-img'); var expanded=fp.dataset.expanded==='1';
+           onclick="var fp=document.getElementById('floorplan-img'); var expanded=fp.dataset.expanded==='1';
                     fp.style.maxWidth=expanded?'':'none';
                     fp.dataset.expanded=expanded?'':'1';
                     fp.style.cursor=expanded?'zoom-in':'zoom-out'">
     </div>
-
     <!-- ADD FORM -->
     <div class="card form-card">
       <p class="section-title">Add Item</p>
-
       <!-- URL + fetch -->
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input id="f-url" type="url" placeholder="Paste product URL — name &amp; image auto-filled" style="flex:1">
@@ -494,7 +452,6 @@ input::placeholder { color: #B8B3AB; }
           <span id="fetch-icon">🔍</span><span id="fetch-label">Fetch</span>
         </button>
       </div>
-
       <!-- Preview (shown after fetch) -->
       <div id="item-preview" style="display:none;gap:12px;align-items:center;background:var(--bg);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:10px">
         <div id="preview-img-wrap" style="width:52px;height:52px;flex-shrink:0;border-radius:8px;overflow:hidden;background:var(--border);display:flex;align-items:center;justify-content:center">
@@ -507,13 +464,11 @@ input::placeholder { color: #B8B3AB; }
           <div id="preview-img-note" style="display:none;font-size:11px;color:var(--muted);margin-top:3px">No image — tap ✏️ after adding to add one</div>
         </div>
       </div>
-
       <!-- Name override + qty -->
       <div class="add-row" style="margin-bottom:12px">
         <input id="f-name" type="text" placeholder="Item name (edit if needed)" class="name-field">
         <input id="f-qty"  type="number" placeholder="Qty" value="1" min="1" class="qty-field">
       </div>
-
       <!-- Person -->
       <p class="person-label">Who's buying this?</p>
       <div class="person-select" style="margin-bottom:16px">
@@ -521,12 +476,9 @@ input::placeholder { color: #B8B3AB; }
         <button type="button" class="person-opt"           id="fo-yesy"  onclick="selectFPerson('yesy')">👩 Yesy</button>
         <button type="button" class="person-opt"           id="fo-split" onclick="selectFPerson('split')">🤝 Split 50/50</button>
       </div>
-
       <button class="btn-primary" onclick="addFurniture()">+ Add to List</button>
     </div>
-
     <div id="f-summary" class="summary-strip" style="display:none"></div>
-
     <!-- FILTERS -->
     <div id="f-filters" style="display:none;margin-bottom:20px">
       <div class="filter-bar">
@@ -542,13 +494,11 @@ input::placeholder { color: #B8B3AB; }
       </div>
       <div class="filter-bar" id="fb-bar" style="display:none"></div>
     </div>
-
     <div id="furniture-grid" class="furniture-grid"></div>
     <div id="furniture-empty" class="empty-state">
       <div class="empty-icon">🛋️</div>
       <p>Your shopping list is empty.<br>Paste a product URL above to get started!</p>
     </div>
-
     <!-- WISHLIST -->
     <div style="margin-top:32px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">💭 Wishlist — Items to Consider</div>
@@ -563,10 +513,8 @@ input::placeholder { color: #B8B3AB; }
       <div id="wishlist-empty" style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">No wishlist items yet — jot down ideas here!</div>
     </div>
   </div>
-
   <!-- ===== BUDGET TAB ===== -->
   <div id="budget-tab" style="display:none">
-
     <!-- Bank Details -->
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-sm)">
       <div style="width:44px;height:44px;border-radius:10px;background:#FFCC00;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
@@ -577,9 +525,7 @@ input::placeholder { color: #B8B3AB; }
         <div style="font-size:12px;color:var(--muted)">BSB <span style="font-weight:600;color:var(--text)">067 873</span> &nbsp;·&nbsp; Account <span style="font-weight:600;color:var(--text)">2540 1832</span></div>
       </div>
     </div>
-
     <div id="budget-summary" class="budget-summary"></div>
-
     <div class="card form-card">
       <p class="section-title">Add Entry</p>
       <div class="type-toggle">
@@ -607,7 +553,6 @@ input::placeholder { color: #B8B3AB; }
       </div>
       <button class="btn-primary" style="margin-top:16px" onclick="addBudget()">+ Add Entry</button>
     </div>
-
     <div class="budget-lists">
       <div class="card list-card">
         <div class="list-card-title"><span class="dot" style="background:#16A34A"></span><span style="color:#16A34A">Income</span></div>
@@ -622,7 +567,6 @@ input::placeholder { color: #B8B3AB; }
         <div id="expense-total" class="list-total" style="display:none"></div>
       </div>
     </div>
-
     <!-- Joint Account Log -->
     <div style="margin-top:28px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px">🏦 Joint Account Contributions</div>
@@ -648,9 +592,7 @@ input::placeholder { color: #B8B3AB; }
       </div>
     </div>
   </div>
-
 </main>
-
 <!-- FURNITURE EDIT MODAL -->
 <div class="modal-overlay" id="f-modal" onclick="if(event.target===this)closeModal('f-modal')">
   <div class="modal-box">
@@ -671,7 +613,6 @@ input::placeholder { color: #B8B3AB; }
     </div>
   </div>
 </div>
-
 <!-- BUDGET EDIT MODAL -->
 <div class="modal-overlay" id="b-modal" onclick="if(event.target===this)closeModal('b-modal')">
   <div class="modal-box">
@@ -696,8 +637,6 @@ input::placeholder { color: #B8B3AB; }
     </div>
   </div>
 </div>
-
-
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
@@ -715,7 +654,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const dataRef = db.ref('our-home');
-
 function setSyncStatus(status) {
   const dot = document.getElementById('sync-dot');
   const lbl = document.getElementById('sync-label');
@@ -723,7 +661,6 @@ function setSyncStatus(status) {
   if (status === 'saving') { dot.style.background='#F59E0B'; lbl.textContent='Saving…'; }
   if (status === 'error')  { dot.style.background='#DC2626'; lbl.textContent='Offline'; }
 }
-
 // ===== STATE =====
 let S = { furniture: [], budget: [], contributions: [], wishlist: [] };
 let fFilter = 'all';
@@ -733,7 +670,6 @@ let selPerson = 'david';
 let selFPerson = 'david';
 let selCPerson = 'david';
 let _saving = false;
-
 const save = () => {
   setSyncStatus('saving');
   _saving = true;
@@ -742,7 +678,6 @@ const save = () => {
     .catch(()=>{ setSyncStatus('error'); _saving=false; });
   localStorage.setItem('our-home-v3', JSON.stringify(S));
 };
-
 const load = () => {
   try {
     let d = localStorage.getItem('our-home-v3')
@@ -752,9 +687,7 @@ const load = () => {
   } catch(e) {}
   if (!S.wishlist) S.wishlist = [];
 };
-
 function initFirebase() {
-  // Sign in anonymously so Firebase rules (auth != null) allow read/write
   firebase.auth().signInAnonymously().catch(()=>{});
   firebase.auth().onAuthStateChanged(user => {
     if (!user) return;
@@ -772,17 +705,14 @@ function initFirebase() {
         localStorage.setItem('our-home-v3', JSON.stringify(S));
         renderFurniture(); renderBudget(); renderContributions(); renderWishlist();
       } else if (localHasData && !fbHasData && !_saving) {
-        // Local has data but Firebase is empty — push local data up
         dataRef.set(S).catch(()=>{});
       }
       setSyncStatus('live');
     }, () => setSyncStatus('error'));
   });
 }
-
 const $   = id => document.getElementById(id);
 const fmt = n  => Number(n).toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0});
-
 // ===== TABS =====
 function switchTab(tab) {
   $('furniture-tab').style.display = tab==='furniture' ? '' : 'none';
@@ -790,10 +720,8 @@ function switchTab(tab) {
   $('tab-furniture').className = 'tab-btn' + (tab==='furniture' ? ' active' : '');
   $('tab-budget').className    = 'tab-btn' + (tab==='budget'    ? ' active' : '');
 }
-
 // ===== URL FETCH =====
 let _fetchData = null;
-
 function extractDomain(url) {
   try {
     const h = new URL(url).hostname.replace('www.','');
@@ -801,17 +729,13 @@ function extractDomain(url) {
     return part.charAt(0).toUpperCase() + part.slice(1);
   } catch(e) { return ''; }
 }
-
 async function fetchProduct() {
   const url = $('f-url').value.trim();
   if (!url) { $('f-url').focus(); return; }
-
   $('fetch-label').textContent = '…';
   $('fetch-icon').textContent  = '';
   $('btn-fetch').disabled = true;
-
   let name = '', image = '', store = extractDomain(url), price = 0;
-
   try {
     const res  = await fetch('/api/fetch-meta?url=' + encodeURIComponent(url));
     const data = await res.json();
@@ -819,9 +743,7 @@ async function fetchProduct() {
     image = data.image || '';
     if (data.store) store = data.store;
     price = data.price || 0;
-  } catch(e) { /* silent — user can type name manually */ }
-
-  // Use best available name — URL title, or store name, or URL slug as last resort
+  } catch(e) {}
   if (!name && store) name = store + ' item';
   if (!name) {
     try {
@@ -846,12 +768,10 @@ async function fetchProduct() {
     $('preview-img-note').style.display = '';
   }
   $('item-preview').style.display = 'flex';
-
   $('fetch-label').textContent = 'Fetch';
   $('fetch-icon').textContent  = '🔍';
   $('btn-fetch').disabled = false;
 }
-
 // ===== FURNITURE =====
 function selectFPerson(p) {
   selFPerson = p;
@@ -859,13 +779,10 @@ function selectFPerson(p) {
     $('fo-'+x).className = 'person-opt' + (x===p ? ' sel-'+p : '');
   });
 }
-
 function addFurniture() {
   let name = $('f-name').value.trim() || (_fetchData && _fetchData.name) || '';
-  // If URL fetched but name still empty, fall back to store name
   if (!name && _fetchData) name = (_fetchData.store ? _fetchData.store + ' item' : 'Item');
   if (!name) { $('f-name').focus(); return; }
-
   S.furniture.unshift({
     id:        Date.now(),
     name,
@@ -878,15 +795,12 @@ function addFurniture() {
     person:    selFPerson,
     purchased: false
   });
-
   $('f-name').value=''; $('f-url').value=''; $('f-qty').value=1;
   $('item-preview').style.display='none';
   _fetchData = null;
   save(); renderFurniture();
 }
-
 function removeFurniture(id) { S.furniture = S.furniture.filter(i=>i.id!==id); save(); renderFurniture(); }
-
 function openEditFurniture(id) {
   const i = S.furniture.find(x=>x.id===id); if(!i) return;
   $('ef-id').value    = id;
@@ -915,7 +829,6 @@ function closeModal(id) { $(id).classList.remove('open'); }
 function togglePurchased(id) { const i=S.furniture.find(x=>x.id===id); if(i) i.purchased=!i.purchased; save(); renderFurniture(); }
 function updQty(id, d) { const i=S.furniture.find(x=>x.id===id); if(i) i.qty=Math.max(1,i.qty+d); save(); renderFurniture(); }
 function setFPerson(id, p) { const i=S.furniture.find(x=>x.id===id); if(!i) return; i.person=p; save(); renderFurniture(); }
-
 // ===== FILTERS =====
 function setFFilter(f) {
   fFilter = f;
@@ -928,26 +841,21 @@ function setFPersonFilter(p) {
   renderFurniture();
 }
 function setFBrandFilter(b) { fBrandFilter = b; renderFurniture(); }
-
 function renderFurniture() {
   const all = S.furniture;
   let shown = fFilter==='pending'   ? all.filter(i=>!i.purchased)
             : fFilter==='purchased' ? all.filter(i=> i.purchased) : all;
   if (fPersonFilter !== 'all') shown = shown.filter(i => (i.person||'split') === fPersonFilter);
   if (fBrandFilter  !== 'all') shown = shown.filter(i => (i.store||'').toLowerCase() === fBrandFilter);
-
   const grid  = $('furniture-grid');
   const empty = $('furniture-empty');
   const sumEl = $('f-summary');
   const filEl = $('f-filters');
   const bBar  = $('fb-bar');
-
   if (all.length===0) {
     grid.innerHTML=''; empty.style.display=''; sumEl.style.display='none'; filEl.style.display='none'; bBar.style.display='none'; return;
   }
   empty.style.display='none'; filEl.style.display='';
-
-  // Brand filter bar
   const brands = [...new Set(all.map(i=>i.store).filter(Boolean))];
   if (brands.length > 0) {
     bBar.style.display='flex';
@@ -956,8 +864,6 @@ function renderFurniture() {
       ...brands.map(b=>`<button class="filter-pill ${fBrandFilter===b.toLowerCase()?'active':''}" onclick="setFBrandFilter('${b.toLowerCase().replace(/'/g,"&#39;")}')">${b}</button>`)
     ].join('');
   } else { bBar.style.display='none'; }
-
-  // Summary chips
   const totalV = all.reduce((s,i)=>s+(i.price*i.qty),0);
   const doneC  = all.filter(i=>i.purchased).length;
   const personSpend = (p) => all.reduce((s,i) => {
@@ -968,7 +874,6 @@ function renderFurniture() {
   }, 0);
   const davidTotal = personSpend('david');
   const yesyTotal  = personSpend('yesy');
-
   sumEl.style.display='flex';
   sumEl.innerHTML = `
     <div class="summary-chip"><span class="chip-icon">📋</span><div><div class="chip-label">Items</div><div class="chip-val">${doneC}/${all.length} done</div></div></div>
@@ -976,11 +881,9 @@ function renderFurniture() {
     ${davidTotal>0?`<div class="summary-chip"><span class="chip-icon">👨</span><div><div class="chip-label">David's share</div><div class="chip-val" style="color:var(--david)">$${fmt(davidTotal)}</div></div></div>`:''}
     ${yesyTotal>0?`<div class="summary-chip"><span class="chip-icon">👩</span><div><div class="chip-label">Yesy's share</div><div class="chip-val" style="color:var(--yesy)">$${fmt(yesyTotal)}</div></div></div>`:''}
   `;
-
   if (shown.length===0) {
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--muted);font-size:14px">No items match this filter</div>`; return;
   }
-
   grid.innerHTML = shown.map(item=>`
     <div class="item-card fade-in ${item.purchased?'purchased':''}">
       <div class="item-thumb">
@@ -1019,25 +922,21 @@ function renderFurniture() {
       </div>
     </div>`).join('');
 }
-
 // ===== BUDGET =====
 const incomeCats  = ['Salary','Freelance','Investment','Government','Rental','Side Income','Other'];
 const expenseCats = ['Housing / Rent','Food & Groceries','Transport','Utilities','Health','Entertainment','Clothing','Education','Insurance','Subscriptions','Savings Goal','Other'];
 const catEmoji = {'Salary':'💼','Freelance':'💻','Investment':'📈','Government':'🏛️','Rental':'🏠','Side Income':'✨','Housing / Rent':'🏠','Food & Groceries':'🛒','Transport':'🚗','Utilities':'💡','Health':'🏥','Entertainment':'🎬','Clothing':'👕','Education':'📚','Insurance':'🛡️','Subscriptions':'📱','Savings Goal':'🐷','Other':'💰'};
 const freqLbl = {weekly:'/wk',fortnightly:'/fn',monthly:'/mo',annual:'/yr'};
 const toMo = (a,f) => f==='weekly'?a*52/12:f==='fortnightly'?a*26/12:f==='annual'?a/12:a;
-
 function updateBudgetForm() {
   const type = document.querySelector('input[name="b-type"]:checked').value;
   $('b-category').innerHTML = (type==='income'?incomeCats:expenseCats).map(c=>`<option>${c}</option>`).join('');
   $('b-person-label').textContent = type==='income'?'Who earns this?':'Who pays / how to split?';
 }
-
 function selectPerson(p) {
   selPerson = p;
   ['david','yesy','split'].forEach(x => { $('bp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
 }
-
 function addBudget() {
   const desc = $('b-desc').value.trim(), amount = parseFloat($('b-amount').value);
   if (!desc || !amount) return;
@@ -1065,12 +964,10 @@ function saveEditBudget() {
   i.frequency   = $('eb-frequency').value;
   save(); renderBudget(); closeModal('b-modal');
 }
-
 function personShare(entry,p) {
   if (entry.person==='split') return toMo(entry.amount,entry.frequency)/2;
   return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
 }
-
 function renderBudget() {
   const income  = S.budget.filter(i=>i.type==='income');
   const expense = S.budget.filter(i=>i.type==='expense');
@@ -1079,7 +976,6 @@ function renderBudget() {
   d.net = d.inc-d.exp; y.net = y.inc-y.exp;
   const all = { inc: income.reduce((s,i)=>s+toMo(i.amount,i.frequency),0), exp: expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0) };
   all.net = all.inc-all.exp;
-
   function personCardHTML(cls, title, data) {
     const pct = data.inc>0 ? Math.min(100,(data.exp/data.inc)*100) : 0;
     const barCol = pct>90?'#DC2626':pct>70?'#F59E0B':'#16A34A';
@@ -1092,12 +988,10 @@ function renderBudget() {
       ${data.inc>0?`<div class="budget-bar"><div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct.toFixed(0)}%;background:${barCol}"></div></div><div class="budget-bar-label">${pct.toFixed(0)}% of income spent</div></div>`:''}
     </div>`;
   }
-
   $('budget-summary').innerHTML =
     personCardHTML('david','👨 David\'s Monthly', d) +
     personCardHTML('yesy', '👩 Yesy\'s Monthly',  y) +
     personCardHTML('combined','🤝 Combined Monthly', all);
-
   function renderList(items, listId, emptyId, totalId, isIncome) {
     const total = items.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
     const amtCol = isIncome?'var(--green)':'var(--red)';
@@ -1132,17 +1026,14 @@ function renderBudget() {
         </div>
       </div>`).join('');
   }
-
   renderList(income,  'income-list',  'income-empty',  'income-total',  true);
   renderList(expense, 'expense-list', 'expense-empty', 'expense-total', false);
 }
-
 // ===== CONTRIBUTIONS =====
 function selectCPerson(p) {
   selCPerson = p;
   ['david','yesy'].forEach(x => { $('cp-'+x).className = 'person-opt' + (x===p?' sel-'+p:''); });
 }
-
 function addContribution() {
   const desc   = $('c-desc').value.trim();
   const amount = parseFloat($('c-amount').value);
@@ -1153,10 +1044,8 @@ function addContribution() {
   save(); renderContributions();
 }
 function removeContribution(id) { S.contributions=S.contributions.filter(i=>i.id!==id); save(); renderContributions(); }
-
 function renderContributions() {
-  const list=_$('contrib-list'), empty=_$('contrib-empty'), total=_$('contrib-total');
-  function _$(id){return document.getElementById(id);}
+  const list=document.getElementById('contrib-list'), empty=document.getElementById('contrib-empty'), total=document.getElementById('contrib-total');
   const items = S.contributions || [];
   if (items.length===0) { list.innerHTML=''; empty.style.display=''; total.style.display='none'; return; }
   empty.style.display='none';
@@ -1189,7 +1078,6 @@ function renderContributions() {
     </div>`;
   }).join('');
 }
-
 // ===== WISHLIST =====
 function addWishlist() {
   const name = $('w-name').value.trim();
@@ -1202,9 +1090,7 @@ function removeWishlist(id) { S.wishlist=S.wishlist.filter(i=>i.id!==id); save()
 function promoteWishlist(id) {
   const item=(S.wishlist||[]).find(i=>i.id===id); if(!item) return;
   $('f-name').value=item.name; $('f-url').value='';
-  $('fetch-status').innerHTML='';
-  $('item-preview').classList.remove('show');
-  pendingFetch=null;
+  $('item-preview').style.display='none';
   switchTab('furniture');
   $('f-name').scrollIntoView({behavior:'smooth',block:'center'});
   $('f-name').focus();
@@ -1228,7 +1114,6 @@ function renderWishlist() {
       </button>
     </div>`).join('');
 }
-
 // ===== EXPORT / IMPORT =====
 function exportData() {
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
@@ -1237,7 +1122,6 @@ function exportData() {
   a.download = 'our-home-backup-' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
 }
-
 function importData(event) {
   const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
@@ -1253,7 +1137,6 @@ function importData(event) {
   };
   reader.readAsText(file);
 }
-
 // ===== INIT =====
 load();
 updateBudgetForm();
