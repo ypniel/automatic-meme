@@ -438,7 +438,7 @@ input::placeholder { color: #B8B3AB; }
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <input id="b-desc"   type="text"   placeholder="Description (e.g. Rent, Groceries)">
         <select id="b-category"></select>
-        <input id="b-amount" type="number" placeholder="Amount ($)" min="0" step="0.01">
+        <input id="b-amount" type="number" placeholder="Amount — your share ($)" min="0" step="0.01">
         <select id="b-frequency">
           <option value="weekly">Weekly</option>
           <option value="fortnightly">Fortnightly</option>
@@ -446,11 +446,11 @@ input::placeholder { color: #B8B3AB; }
           <option value="annual">Annual</option>
         </select>
         <div style="grid-column:1/-1">
-          <p class="person-label">Who pays / how to split?</p>
+          <p class="person-label">Who pays this?</p>
           <div class="person-select">
-            <button type="button" class="person-opt sel-david" id="bp-david" onclick="selectPerson('david')">👨 David</button>
+            <button type="button" class="person-opt"           id="bp-david" onclick="selectPerson('david')">👨 David</button>
             <button type="button" class="person-opt"           id="bp-yesy"  onclick="selectPerson('yesy')">👩 Yesy</button>
-            <button type="button" class="person-opt"           id="bp-split" onclick="selectPerson('split')">🤝 Split 50/50</button>
+            <button type="button" class="person-opt sel-split" id="bp-split" onclick="selectPerson('split')">🤝 Both</button>
           </div>
         </div>
       </div>
@@ -492,7 +492,6 @@ input::placeholder { color: #B8B3AB; }
               </div>
             </div>
           </div>
-          <div id="contrib-monthly" style="display:none;padding-top:4px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)"></div>
         </div>
       </div>
     </div>
@@ -655,7 +654,7 @@ let S = { furniture: [], budget: [], contributions: [], wishlist: [] };
 let fFilter = 'all';
 let fPersonFilter = 'all';
 let fBrandFilter = 'all';
-let selPerson = 'david';
+let selPerson = 'split';
 let selFPerson = 'david';
 let _saving = false;
 const save = () => {
@@ -950,14 +949,15 @@ function saveEditBudget() {
   save(); renderBudget(); closeModal('b-modal');
 }
 function personShare(entry, p) {
-  if (entry.person==='split') return toMo(entry.amount,entry.frequency)/2;
-  return entry.person===p ? toMo(entry.amount,entry.frequency) : 0;
+  // Amounts are already per-person, so split = full amount for each person
+  if (entry.person==='split') return toMo(entry.amount, entry.frequency);
+  return entry.person===p ? toMo(entry.amount, entry.frequency) : 0;
 }
 function renderBudget() {
   const expense = S.budget.filter(i=>i.type==='expense'||!i.type);
   const dExp = expense.reduce((s,i)=>s+personShare(i,'david'),0);
   const yExp = expense.reduce((s,i)=>s+personShare(i,'yesy'),0);
-  const aExp = expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
+  const combined = dExp + yExp;
 
   function personCardHTML(cls, title, exp) {
     return `<div class="person-card ${cls}">
@@ -965,12 +965,13 @@ function renderBudget() {
       <div class="person-row"><span class="label">Monthly expenses</span><span class="val-red">$${fmt(exp)}/mo</span></div>
     </div>`;
   }
-  $('budget-summary').innerHTML =
-    personCardHTML('david', '👨 David\'s Monthly', dExp) +
-    personCardHTML('yesy',  '👩 Yesy\'s Monthly',  yExp) +
-    personCardHTML('combined', '🤝 Combined Monthly', aExp);
+  $('budget-summary').innerHTML = expense.length > 0
+    ? personCardHTML('david','👨 David\'s Monthly',dExp) +
+      personCardHTML('yesy','👩 Yesy\'s Monthly',yExp) +
+      personCardHTML('combined','🤝 Combined Monthly',combined)
+    : '';
 
-  const total = aExp;
+  const total = expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
   if (expense.length===0) {
     $('expense-list').innerHTML=''; $('expense-empty').style.display=''; $('expense-total').style.display='none'; return;
   }
@@ -983,9 +984,9 @@ function renderBudget() {
         <div style="min-width:0">
           <div class="budget-row-name">${i.description}</div>
           <div class="budget-row-meta" style="gap:4px">
-            <button class="pmini ${i.person==='david'?'sel-david':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'david')">👨</button>
-            <button class="pmini ${i.person==='yesy' ?'sel-yesy' :''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'yesy')">👩</button>
-            <button class="pmini ${i.person==='split'?'sel-split':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'split')">🤝</button>
+            <button class="pmini ${(i.person||'split')==='david'?'sel-david':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'david')">👨</button>
+            <button class="pmini ${(i.person||'split')==='yesy' ?'sel-yesy' :''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'yesy')">👩</button>
+            <button class="pmini ${(i.person||'split')==='split'?'sel-split':''}" style="padding:2px 7px;font-size:10px;flex:none" onclick="setBPerson(${i.id},'split')">🤝</button>
             <span>${i.category}</span>
           </div>
         </div>
@@ -1010,23 +1011,11 @@ function saveContribAmounts() {
   const david = parseFloat($('c-david').value) || 0;
   S.contributions = { yesyMonthly: yesy, davidWeekly: david };
   save();
-  renderContributions();
 }
 function renderContributions() {
   const c = (S.contributions && !Array.isArray(S.contributions)) ? S.contributions : {};
-  const yesy  = c.yesyMonthly  || 0;
-  const david = c.davidWeekly  || 0;
-  if ($('c-yesy'))  $('c-yesy').value  = yesy  || '';
-  if ($('c-david')) $('c-david').value = david || '';
-  const davidMonthly = toMo(david, 'weekly');
-  const combined = yesy + davidMonthly;
-  const el = $('contrib-monthly');
-  if (combined > 0) {
-    el.style.display = '';
-    el.innerHTML = `Combined: <strong style="color:var(--text)">$${fmt(combined)}/mo</strong> &nbsp;·&nbsp; 👩 $${fmt(yesy)}/mo &nbsp;·&nbsp; 👨 $${fmt(davidMonthly)}/mo (from $${fmt(david)}/wk)`;
-  } else {
-    el.style.display = 'none';
-  }
+  if ($('c-yesy'))  $('c-yesy').value  = c.yesyMonthly  || '';
+  if ($('c-david')) $('c-david').value = c.davidWeekly  || '';
 }
 // ===== WISHLIST =====
 function addWishlist() {
