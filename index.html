@@ -959,16 +959,33 @@ function renderBudget() {
   const yExp = expense.reduce((s,i)=>s+personShare(i,'yesy'),0);
   const combined = dExp + yExp;
 
-  function personCardHTML(cls, title, exp) {
-    return `<div class="person-card ${cls}">
-      <div class="person-card-title">${title}</div>
-      <div class="person-row"><span class="label">Monthly expenses</span><span class="val-red">$${fmt(exp)}/mo</span></div>
+  const c = (S.contributions && !Array.isArray(S.contributions)) ? S.contributions : {};
+  const davidWeekly  = c.davidWeekly  || 0;
+  const yesyMonthly  = c.yesyMonthly  || 0;
+
+  const dExpWeekly = dExp * 12 / 52;
+  function davidCardHTML() {
+    return `<div class="person-card david">
+      <div class="person-card-title" style="color:var(--david)">👨 David's Monthly</div>
+      <div class="person-row"><span class="label">Monthly expenses</span><span class="val-red">$${fmt(dExp)}/mo <span style="font-size:11px;font-weight:400;color:var(--muted)">($${fmt(dExpWeekly)}/wk)</span></span></div>
+      ${davidWeekly > 0 ? `<div class="person-row" style="margin-top:4px"><span class="label">Joint contribution</span><span style="color:var(--green);font-weight:600">$${fmt(davidWeekly)}/wk</span></div>` : ''}
+    </div>`;
+  }
+  function yesyCardHTML() {
+    return `<div class="person-card yesy">
+      <div class="person-card-title" style="color:var(--yesy)">👩 Yesy's Monthly</div>
+      <div class="person-row"><span class="label">Monthly expenses</span><span class="val-red">$${fmt(yExp)}/mo</span></div>
+      ${yesyMonthly > 0 ? `<div class="person-row" style="margin-top:4px"><span class="label">Joint contribution</span><span style="color:var(--green);font-weight:600">$${fmt(yesyMonthly)}/mo</span></div>` : ''}
+    </div>`;
+  }
+  function combinedCardHTML() {
+    return `<div class="person-card combined">
+      <div class="person-card-title">🤝 Combined Monthly</div>
+      <div class="person-row"><span class="label">Monthly expenses</span><span class="val-red">$${fmt(combined)}/mo</span></div>
     </div>`;
   }
   $('budget-summary').innerHTML = expense.length > 0
-    ? personCardHTML('david','👨 David\'s Monthly',dExp) +
-      personCardHTML('yesy','👩 Yesy\'s Monthly',yExp) +
-      personCardHTML('combined','🤝 Combined Monthly',combined)
+    ? davidCardHTML() + yesyCardHTML() + combinedCardHTML()
     : '';
 
   const total = expense.reduce((s,i)=>s+toMo(i.amount,i.frequency),0);
@@ -1011,6 +1028,7 @@ function saveContribAmounts() {
   const david = parseFloat($('c-david').value) || 0;
   S.contributions = { yesyMonthly: yesy, davidWeekly: david };
   save();
+  renderBudget();
 }
 function renderContributions() {
   const c = (S.contributions && !Array.isArray(S.contributions)) ? S.contributions : {};
